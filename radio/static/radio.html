@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>mirror · radio</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400&family=Cormorant+Garamond:ital,wght@0,300;1,300;1,400&display=swap');
+
+/* ── CHANGE 1: LIGHT MODE PALETTE ────────────────────────────── */
+:root {
+  --page-bg:   #E8E0CC;
+  --face-a:    #EAE0C4;
+  --face-b:    #D4C89A;
+  --face-c:    #C8BC8E;
+  --grille-a:  #C8B07A;
+  --grille-b:  #B09860;
+  --border:    rgba(100,78,38,0.28);
+  --text:      #4A3A20;
+  --text-dim:  #7A6848;
+  --text-faint:#A89870;
+  --amber:     #B07818;
+  --amb-glow:  rgba(176,120,24,0.30);
+  --amb-dim:   rgba(100,78,28,0.35);
+  --disp-bg:   #D8D09A;
+  --disp-num:  #7A5010;
+  --knob-a:    #3C2810;
+  --knob-b:    #1E1008;
+  --dot-off:   rgba(0,0,0,0.14);
+  --dot-found: #B07818;
+  --dot-done:  rgba(0,0,0,0.26);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  background: var(--page-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  overflow: hidden;
+}
+
+/* ── START SCREEN ─────────────────────────────────────────────── */
+
+#start-screen {
+  position: fixed; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  background: var(--page-bg);
+  z-index: 50;
+  transition: opacity 0.7s ease;
+}
+#start-screen.out { opacity: 0; pointer-events: none; }
+
+.ss-mark {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 52px; font-style: italic; font-weight: 300;
+  color: var(--text); letter-spacing: 0.02em;
+}
+.ss-sub {
+  font-size: 9px; letter-spacing: 0.38em; text-transform: uppercase;
+  color: var(--text-dim); margin-top: 6px; margin-bottom: 44px;
+}
+.ss-desc {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 15px; font-style: italic; color: var(--text-faint);
+  text-align: center; max-width: 230px; line-height: 2;
+  margin-bottom: 52px;
+}
+#power-btn {
+  background: none;
+  border: 1px solid var(--amb-dim);
+  color: var(--text-dim);
+  padding: 13px 42px;
+  font-family: 'DM Mono', monospace;
+  font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+  cursor: pointer;
+  transition: border-color 0.3s, box-shadow 0.3s, color 0.3s;
+}
+#power-btn:hover {
+  border-color: var(--amber);
+  color: var(--amber);
+  box-shadow: 0 0 20px var(--amb-glow);
+}
+
+/* ── RADIO BODY ───────────────────────────────────────────────── */
+
+#radio {
+  width: 100%; max-width: 480px; padding: 0 16px;
+  opacity: 0; transform: translateY(6px);
+  transition: opacity 0.9s ease, transform 0.9s ease;
+}
+#radio.on { opacity: 1; transform: none; }
+
+.rf-face {
+  background: linear-gradient(160deg, var(--face-a) 0%, var(--face-b) 55%, var(--face-c) 100%);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 22px 22px 18px;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.55),
+    inset 0 -1px 0 rgba(0,0,0,0.10),
+    0 28px 70px rgba(0,0,0,0.22);
+  display: flex; flex-direction: column; gap: 16px;
+}
+
+/* ── HEADER ───────────────────────────────────────────────────── */
+
+.rf-hdr {
+  display: flex; align-items: center; justify-content: space-between;
+}
+.rf-mark {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 17px; font-style: italic; font-weight: 300;
+  color: var(--text-dim); letter-spacing: 0.04em;
+}
+.rf-mod {
+  font-size: 8px; letter-spacing: 0.28em; text-transform: uppercase;
+  color: var(--text-faint); margin-left: 8px;
+}
+
+/* status indicator light */
+#stt-light {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: rgba(0,0,0,0.12); border: 1px solid rgba(0,0,0,0.18);
+  transition: background 0.25s, box-shadow 0.25s, border-color 0.25s;
+}
+#stt-light.amber {
+  background: var(--amber); border-color: var(--amber);
+  box-shadow: 0 0 8px rgba(176,120,24,0.75), 0 0 22px rgba(176,120,24,0.3);
+}
+#stt-light.white {
+  background: rgba(255,252,240,0.94); border-color: rgba(220,210,180,0.7);
+  box-shadow: 0 0 10px rgba(255,240,200,0.8), 0 0 28px rgba(255,240,200,0.35);
+}
+/* pre-amber: dim flicker state before lock-on */
+#stt-light.pre-amber {
+  background: rgba(176,120,24,0.42);
+  border-color: rgba(176,120,24,0.55);
+  box-shadow: 0 0 5px rgba(176,120,24,0.35);
+}
+
+/* ── SPEAKER GRILLE ───────────────────────────────────────────── */
+
+#spk-wrap {
+  position: relative; height: 188px;
+  border-radius: 6px; overflow: hidden;
+  border: 1px solid rgba(0,0,0,0.18);
+  box-shadow: inset 0 2px 8px rgba(0,0,0,0.18);
+}
+#spk-grille {
+  position: absolute; inset: 0;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0px, transparent 3px,
+      rgba(0,0,0,0.18) 3px, rgba(0,0,0,0.18) 5px
+    ),
+    radial-gradient(ellipse at 50% 45%, var(--grille-a) 0%, var(--grille-b) 100%);
+}
+#stc-canvas {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  mix-blend-mode: multiply;  /* dark = darkens grille; white = transparent */
+  transition: opacity 0.35s;
+}
+#stc-canvas.off { opacity: 0; }
+
+/* shared grille panel */
+.gp {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 22px 28px;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.5s;
+}
+.gp.show { opacity: 1; pointer-events: auto; }
+
+/* narrator panel */
+#np-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 15px; font-style: italic; font-weight: 300;
+  color: #4A3810; line-height: 1.9; text-align: center;
+}
+
+/* chapter panel */
+#ch-panel { gap: 12px; }
+#ch-tag {
+  font-size: 8px; letter-spacing: 0.22em; text-transform: uppercase;
+  color: #7A6040;
+}
+#ch-line {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 16px; font-style: italic; font-weight: 300;
+  color: #3A2208; line-height: 1.75; text-align: center;
+}
+#cont-btn {
+  margin-top: 6px;
+  background: none; border: 1px solid var(--amb-dim);
+  color: var(--text-dim); padding: 6px 18px;
+  font-family: 'DM Mono', monospace;
+  font-size: 10px; letter-spacing: 0.1em;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.4s 1.3s, border-color 0.2s, box-shadow 0.2s;
+}
+#cont-btn.show { opacity: 1; }
+#cont-btn:hover { border-color: var(--amber); box-shadow: 0 0 12px var(--amb-glow); }
+
+/* listen-only panel */
+#lo-panel { gap: 11px; }
+.wl-orb {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,248,220,0.96) 0%, rgba(255,240,180,0.38) 55%, transparent 100%);
+  box-shadow: 0 0 22px rgba(255,240,180,0.6), 0 0 56px rgba(255,240,180,0.2);
+  animation: wlp 3.2s ease-in-out infinite;
+}
+@keyframes wlp { 0%,100%{transform:scale(1);opacity:.85} 50%{transform:scale(1.1);opacity:1} }
+#lo-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 15px; font-style: italic;
+  color: #4A3810; line-height: 1.75; text-align: center;
+}
+.lo-track {
+  width: 78%; height: 1px; background: rgba(0,0,0,0.15); overflow: hidden;
+}
+#lo-bar {
+  height: 100%; background: rgba(180,140,60,0.5);
+  width: 100%; transition: none;
+}
+
+/* ── CONTROLS ROW ─────────────────────────────────────────────── */
+
+.rf-ctrl { display: flex; align-items: center; gap: 14px; }
+
+/* frequency display */
+.freq-col { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+#freq-disp {
+  background: var(--disp-bg);
+  border: 1px solid rgba(0,0,0,0.16);
+  border-radius: 4px; padding: 11px 14px;
+  box-shadow: inset 0 1px 5px rgba(0,0,0,0.12), inset 0 -1px 0 rgba(255,255,255,0.4);
+}
+#freq-val {
+  font-family: 'DM Mono', monospace;
+  font-size: 44px; font-weight: 300;
+  color: var(--disp-num); letter-spacing: -0.01em; line-height: 1;
+}
+#freq-unit {
+  font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--text-faint); margin-top: 4px;
+}
+#ch-name {
+  font-size: 8px; letter-spacing: 0.16em; text-transform: uppercase;
+  color: transparent; min-height: 12px; padding-left: 2px;
+  transition: color 0.4s;
+}
+#ch-name.lit { color: var(--text-dim); }
+
+/* ── ROTARY KNOB ──────────────────────────────────────────────── */
+
+.knob-col {
+  position: relative; width: 156px; height: 156px; flex-shrink: 0;
+}
+#knob-scale {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  pointer-events: none;
+}
+#knob {
+  position: absolute; top: 50%; left: 50%;
+  width: 106px; height: 106px;
+  transform: translate(-50%,-50%) rotate(-270deg);
+  cursor: grab; user-select: none; touch-action: none;
+}
+#knob:active { cursor: grabbing; }
+#knob-body {
+  width: 100%; height: 100%; border-radius: 50%;
+  background: radial-gradient(circle at 36% 32%, var(--knob-a) 0%, var(--knob-b) 70%);
+  border: 1px solid rgba(255,200,120,0.12);
+  box-shadow:
+    inset 0 1px 3px rgba(255,200,100,0.08),
+    0 4px 18px rgba(0,0,0,0.55),
+    0 1px 4px rgba(0,0,0,0.4);
+  position: relative;
+  transition: box-shadow 0.3s;
+}
+#knob-body::before {
+  content: '';
+  position: absolute; inset: 8px; border-radius: 50%;
+  border: 1px solid rgba(255,200,100,0.05);
+}
+#knob-dot {
+  position: absolute; top: 9px; left: 50%;
+  transform: translateX(-50%);
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--amber);
+  box-shadow: 0 0 6px rgba(176,120,24,0.65);
+}
+#knob.disabled { cursor: not-allowed; opacity: 0.42; }
+#knob.active #knob-body {
+  box-shadow:
+    inset 0 1px 3px rgba(255,200,100,0.08),
+    0 4px 18px rgba(0,0,0,0.55),
+    0 0 18px rgba(176,120,24,0.08);
+}
+
+/* ── PROGRESS DOTS ────────────────────────────────────────────── */
+
+.rf-prog {
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+  padding: 2px 0;
+}
+.dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--dot-off); border: 1px solid rgba(0,0,0,0.18);
+  transition: background 0.4s, box-shadow 0.4s, border-color 0.4s;
+}
+.dot.found {
+  background: var(--dot-found); border-color: var(--dot-found);
+  box-shadow: 0 0 5px rgba(176,120,24,0.5);
+}
+.dot.done { background: var(--dot-done); border-color: var(--dot-done); }
+
+/* ── EXPERIENCE COMPLETE ──────────────────────────────────────── */
+
+#done-ovl {
+  position: fixed; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 14px;
+  background: var(--page-bg);
+  opacity: 0; pointer-events: none;
+  transition: opacity 1.4s ease 0.4s;
+  z-index: 40;
+}
+#done-ovl.show { opacity: 1; pointer-events: auto; }
+.done-glyph {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 44px; font-style: italic; color: var(--text-faint);
+}
+.done-msg {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 15px; font-style: italic; color: var(--text-dim);
+  text-align: center; max-width: 200px; line-height: 1.9;
+}
+</style>
+</head>
+<body>
+
+<!-- START SCREEN -->
+<div id="start-screen">
+  <p class="ss-mark">mirror</p>
+  <p class="ss-sub">Radio</p>
+  <p class="ss-desc">Somewhere on the dial,<br>there are voices.</p>
+  <button id="power-btn" onclick="boot()">power on</button>
+</div>
+
+<!-- RADIO -->
+<div id="radio">
+  <div class="rf-face">
+
+    <div class="rf-hdr">
+      <div>
+        <span class="rf-mark">mirror</span>
+        <span class="rf-mod">radio</span>
+      </div>
+      <div id="stt-light"></div>
+    </div>
+
+    <!-- speaker grille -->
+    <div id="spk-wrap">
+      <div id="spk-grille"></div>
+      <canvas id="stc-canvas"></canvas>
+
+      <div id="np" class="gp"><p id="np-text"></p></div>
+
+      <div id="ch-panel" class="gp">
+        <div id="ch-tag"></div>
+        <div id="ch-line"></div>
+        <button id="cont-btn" onclick="chapterDone()">continue →</button>
+      </div>
+
+      <div id="lo-panel" class="gp">
+        <div class="wl-orb"></div>
+        <div id="lo-text"></div>
+        <div class="lo-track"><div id="lo-bar"></div></div>
+      </div>
+    </div>
+
+    <!-- controls -->
+    <div class="rf-ctrl">
+      <div class="freq-col">
+        <div id="freq-disp">
+          <div id="freq-val">88.0</div>
+          <div id="freq-unit">MHz</div>
+        </div>
+        <div id="ch-name"></div>
+      </div>
+
+      <div class="knob-col">
+        <svg id="knob-scale" viewBox="0 0 156 156"></svg>
+        <div id="knob" class="disabled">
+          <div id="knob-body">
+            <div id="knob-dot"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rf-prog" id="prog-dots"></div>
+
+  </div>
+</div>
+
+<!-- COMPLETE -->
+<div id="done-ovl">
+  <div class="done-glyph">∅</div>
+  <p class="done-msg">The radio goes quiet now.</p>
+</div>
+
+<script>
+// ══ CONFIG ═══════════════════════════════════════════════════════
+const ANGLE_MIN      = -270;   // 540° throw
+const ANGLE_MAX      =  270;   // 540° throw
+const FREQ_MIN       = 88.0;
+const FREQ_MAX       = 108.0;
+const DOT_STEPS      = 7;
+const GRADIENT_RANGE = 2.0;    // MHz — client-side proximity zone width
+
+// ══ STATE ════════════════════════════════════════════════════════
+const ST = { DORMANT:'dormant', INTRO:'intro', SEARCH:'search',
+             CHAPTER:'chapter', LISTEN:'listen', OUTRO:'outro', DONE:'done' };
+let state        = ST.DORMANT;
+let ws           = null, sessionId = null;
+let dialActive   = false, currentStep = 0;
+let activeFreq   = null;          // target frequency from server
+let currentProximity = 0;         // 0.0–1.0
+let proximityZone    = 0;         // 0=none, 1=low(0.5–0.82), 2=high(≥0.82)
+let lockingIn        = false;     // true during 400ms lock-on transition
+let flickerTimer     = null;      // light flicker interval
+
+// ══ DOM ══════════════════════════════════════════════════════════
+const radioEl   = document.getElementById('radio');
+const sttLight  = document.getElementById('stt-light');
+const stcCanvas = document.getElementById('stc-canvas');
+const npPanel   = document.getElementById('np');
+const npText    = document.getElementById('np-text');
+const chPanel   = document.getElementById('ch-panel');
+const chTag     = document.getElementById('ch-tag');
+const chLine    = document.getElementById('ch-line');
+const contBtn   = document.getElementById('cont-btn');
+const loPanel   = document.getElementById('lo-panel');
+const loText    = document.getElementById('lo-text');
+const loBar     = document.getElementById('lo-bar');
+const freqVal   = document.getElementById('freq-val');
+const chName    = document.getElementById('ch-name');
+const knobEl    = document.getElementById('knob');
+const knobScale = document.getElementById('knob-scale');
+const progDots  = document.getElementById('prog-dots');
+const doneOvl   = document.getElementById('done-ovl');
+
+// ══ PROGRESS DOTS ════════════════════════════════════════════════
+const dots = [];
+for (let i = 0; i < DOT_STEPS; i++) {
+  const d = document.createElement('div');
+  d.className = 'dot';
+  progDots.appendChild(d);
+  dots.push(d);
+}
+
+function updateDots(step) {
+  dots.forEach((d, i) => {
+    const s = i + 1;
+    d.className = 'dot' + (s < step ? ' done' : s === step ? ' found' : '');
+  });
+}
+
+// ══ KNOB SCALE SVG ═══════════════════════════════════════════════
+(function buildScale() {
+  const cx = 78, cy = 78, r = 72;
+  const ns = 'http://www.w3.org/2000/svg';
+
+  // Maps a frequency to a visual SVG position on the ring
+  function aXY(freq, rad) {
+    const deg = ANGLE_MIN + (freq - FREQ_MIN) / (FREQ_MAX - FREQ_MIN) * (ANGLE_MAX - ANGLE_MIN);
+    const a = (deg - 90) * Math.PI / 180;
+    return { x: cx + rad * Math.cos(a), y: cy + rad * Math.sin(a) };
+  }
+
+  function mkLine(p1, p2, stroke, sw) {
+    const el = document.createElementNS(ns, 'line');
+    el.setAttribute('x1', p1.x); el.setAttribute('y1', p1.y);
+    el.setAttribute('x2', p2.x); el.setAttribute('y2', p2.y);
+    el.setAttribute('stroke', stroke); el.setAttribute('stroke-width', sw);
+    knobScale.appendChild(el);
+  }
+
+  function mkText(p, label, fill, sz) {
+    const el = document.createElementNS(ns, 'text');
+    el.setAttribute('x', p.x); el.setAttribute('y', p.y);
+    el.setAttribute('fill', fill); el.setAttribute('font-size', sz);
+    el.setAttribute('font-family', 'DM Mono,monospace');
+    el.setAttribute('text-anchor', 'middle');
+    el.setAttribute('dominant-baseline', 'middle');
+    el.textContent = label;
+    knobScale.appendChild(el);
+  }
+
+  // Full circle track — 540° throw spans the full ring
+  const circle = document.createElementNS(ns, 'circle');
+  circle.setAttribute('cx', cx); circle.setAttribute('cy', cy);
+  circle.setAttribute('r', r);
+  circle.setAttribute('fill', 'none');
+  circle.setAttribute('stroke', 'rgba(100,78,38,0.25)');
+  circle.setAttribute('stroke-width', '1');
+  knobScale.appendChild(circle);
+
+  // Minor ticks every 2 MHz
+  for (let f = 90; f <= 106; f += 2) {
+    mkLine(aXY(f, r), aXY(f, r - 5), 'rgba(100,78,38,0.35)', 1);
+  }
+  // Major ticks + labels every 4 MHz
+  [88, 92, 96, 100, 104, 108].forEach(f => {
+    mkLine(aXY(f, r), aXY(f, r - 9), 'rgba(80,58,20,0.55)', 1.5);
+    mkText(aXY(f, r - 17), String(f), 'rgba(74,58,32,0.8)', '6.5');
+  });
+})();
+
+// ══ KNOB DRAG ════════════════════════════════════════════════════
+let knobAngle = ANGLE_MIN;
+let dragging  = false, prevMA = 0;
+
+function ctrAngle(clientX, clientY) {
+  const r = knobEl.getBoundingClientRect();
+  return Math.atan2(clientY - (r.top + r.height/2), clientX - (r.left + r.width/2)) * 180 / Math.PI;
+}
+
+function setAngle(a) {
+  knobAngle = Math.max(ANGLE_MIN, Math.min(ANGLE_MAX, a));
+  knobEl.style.transform = `translate(-50%,-50%) rotate(${knobAngle}deg)`;
+  const freq = FREQ_MIN + (knobAngle - ANGLE_MIN) / (ANGLE_MAX - ANGLE_MIN) * (FREQ_MAX - FREQ_MIN);
+  freqVal.textContent = freq.toFixed(1);
+  scheduleTune(freq);
+  if (state === ST.SEARCH) updateProximityFeedback(freq);
+}
+
+knobEl.addEventListener('mousedown', e => {
+  if (!dialActive) return;
+  dragging = true; prevMA = ctrAngle(e.clientX, e.clientY); e.preventDefault();
+});
+document.addEventListener('mousemove', e => {
+  if (!dragging) return;
+  const ma = ctrAngle(e.clientX, e.clientY);
+  let d = ma - prevMA;
+  if (d >  180) d -= 360;
+  if (d < -180) d += 360;
+  prevMA = ma; setAngle(knobAngle + d);
+});
+document.addEventListener('mouseup', () => dragging = false);
+
+knobEl.addEventListener('touchstart', e => {
+  if (!dialActive) return;
+  dragging = true; prevMA = ctrAngle(e.touches[0].clientX, e.touches[0].clientY);
+  e.preventDefault();
+}, { passive: false });
+document.addEventListener('touchmove', e => {
+  if (!dragging) return;
+  const ma = ctrAngle(e.touches[0].clientX, e.touches[0].clientY);
+  let d = ma - prevMA;
+  if (d >  180) d -= 360; if (d < -180) d += 360;
+  prevMA = ma; setAngle(knobAngle + d);
+}, { passive: false });
+document.addEventListener('touchend', () => dragging = false);
+
+knobEl.addEventListener('wheel', e => {
+  if (!dialActive) return;
+  e.preventDefault();
+  setAngle(knobAngle + (e.deltaY < 0 ? 2.7 : -2.7));
+}, { passive: false });
+
+document.addEventListener('keydown', e => {
+  if (!dialActive || e.target.tagName === 'BUTTON') return;
+  const step = e.shiftKey ? 13.5 : 1.35;
+  if (e.key === 'ArrowRight' || e.key === 'ArrowUp')  { setAngle(knobAngle + step); e.preventDefault(); }
+  if (e.key === 'ArrowLeft'  || e.key === 'ArrowDown') { setAngle(knobAngle - step); e.preventDefault(); }
+});
+
+function enableDial()  { dialActive = true;  knobEl.classList.remove('disabled'); knobEl.classList.add('active'); }
+function disableDial() { dialActive = false; knobEl.classList.remove('active'); knobEl.classList.add('disabled'); }
+
+// ══ TUNE THROTTLE ════════════════════════════════════════════════
+let tuneTimer = null, lastSentFreq = null;
+
+function scheduleTune(freq) {
+  if (!ws || ws.readyState !== WebSocket.OPEN || state !== ST.SEARCH) return;
+  if (tuneTimer) return;
+  tuneTimer = setTimeout(() => {
+    tuneTimer = null;
+    const f = parseFloat(freqVal.textContent);
+    if (f !== lastSentFreq) { ws.send(JSON.stringify({ type:'tune', frequency:f })); lastSentFreq = f; }
+  }, 75);
+}
+
+// ══ AUDIO ════════════════════════════════════════════════════════
+let actx = null, sGain = null, hum1Gain = null, hum2Gain = null;
+
+function initAudio() {
+  actx = new (window.AudioContext || window.webkitAudioContext)();
+
+  // White noise — bandpass filtered static
+  const buf = actx.createBuffer(1, actx.sampleRate * 4, actx.sampleRate);
+  const d = buf.getChannelData(0);
+  for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+  const src = actx.createBufferSource();
+  src.buffer = buf; src.loop = true;
+  const bpf = actx.createBiquadFilter();
+  bpf.type = 'bandpass'; bpf.frequency.value = 1300; bpf.Q.value = 0.65;
+  sGain = actx.createGain(); sGain.gain.value = 0;
+  src.connect(bpf); bpf.connect(sGain); sGain.connect(actx.destination);
+  src.start();
+
+  // Hum fundamental 80 Hz — emerges as user approaches
+  const h1 = actx.createOscillator();
+  h1.type = 'sine'; h1.frequency.value = 80;
+  hum1Gain = actx.createGain(); hum1Gain.gain.value = 0;
+  h1.connect(hum1Gain); hum1Gain.connect(actx.destination);
+  h1.start();
+
+  // Hum harmonic 160 Hz — emerges at higher proximity
+  const h2 = actx.createOscillator();
+  h2.type = 'sine'; h2.frequency.value = 160;
+  hum2Gain = actx.createGain(); hum2Gain.gain.value = 0;
+  h2.connect(hum2Gain); hum2Gain.connect(actx.destination);
+  h2.start();
+}
+
+// Ramp all gain nodes to match proximity 0.0–1.0
+function updateAudioForProximity(prox) {
+  if (!actx) return;
+  const t = actx.currentTime + 0.12;
+
+  // Static: thickens approaching, then thins as station locks
+  const noiseTarget = prox < 0.78
+    ? 0.11 + prox * 0.22
+    : 0.28 - (prox - 0.78) * 0.9;
+  sGain.gain.cancelScheduledValues(actx.currentTime);
+  sGain.gain.linearRampToValueAtTime(Math.max(0.08, noiseTarget), t);
+
+  // Hum 1: fades in above 0.3
+  const h1Target = prox > 0.3 ? ((prox - 0.3) / 0.7) * 0.12 : 0;
+  hum1Gain.gain.cancelScheduledValues(actx.currentTime);
+  hum1Gain.gain.linearRampToValueAtTime(h1Target, t);
+
+  // Hum 2: fades in above 0.55
+  const h2Target = prox > 0.55 ? ((prox - 0.55) / 0.45) * 0.08 : 0;
+  hum2Gain.gain.cancelScheduledValues(actx.currentTime);
+  hum2Gain.gain.linearRampToValueAtTime(h2Target, t);
+}
+
+function aFadeOut() {
+  if (!actx) return;
+  const t = actx.currentTime + 0.35;
+  [sGain, hum1Gain, hum2Gain].forEach(g => {
+    if (!g) return;
+    g.gain.cancelScheduledValues(actx.currentTime);
+    g.gain.linearRampToValueAtTime(0, t);
+  });
+}
+
+// Lock-on sweep: 300→100 Hz descending tone
+function playLockSweep() {
+  if (!actx) return;
+  const osc = actx.createOscillator();
+  const g   = actx.createGain();
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(300, actx.currentTime);
+  osc.frequency.linearRampToValueAtTime(100, actx.currentTime + 0.28);
+  g.gain.setValueAtTime(0.18, actx.currentTime);
+  g.gain.linearRampToValueAtTime(0, actx.currentTime + 0.30);
+  osc.connect(g); g.connect(actx.destination);
+  osc.start(); osc.stop(actx.currentTime + 0.32);
+}
+
+// Proximity chirp: 200→400 Hz — fires once on entering hot zone
+function playSweepChirp() {
+  if (!actx) return;
+  const osc = actx.createOscillator();
+  const g   = actx.createGain();
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(200, actx.currentTime);
+  osc.frequency.linearRampToValueAtTime(400, actx.currentTime + 0.12);
+  g.gain.setValueAtTime(0.06, actx.currentTime);
+  g.gain.linearRampToValueAtTime(0, actx.currentTime + 0.15);
+  osc.connect(g); g.connect(actx.destination);
+  osc.start(); osc.stop(actx.currentTime + 0.18);
+}
+
+// ══ PROXIMITY FEEDBACK ═══════════════════════════════════════════
+
+function updateProximityFeedback(freq) {
+  if (!activeFreq || lockingIn) return;
+  const dist = Math.abs(freq - activeFreq);
+  const prox = Math.max(0, 1.0 - Math.min(dist / GRADIENT_RANGE, 1.0));
+  currentProximity = prox;
+  updateAudioForProximity(prox);
+
+  const newZone = prox < 0.5 ? 0 : prox < 0.82 ? 1 : 2;
+  if (newZone !== proximityZone) {
+    proximityZone = newZone;
+    if (newZone === 0)      { stopLightFlicker(); }
+    else if (newZone === 1) { startLightFlicker('slow'); }
+    else                    { playSweepChirp(); startLightFlicker('fast'); }
+  }
+}
+
+function startLightFlicker(speed) {
+  stopLightFlicker();
+  const iv = speed === 'fast' ? 130 : 310;
+  flickerTimer = setInterval(() => {
+    if (Math.random() > 0.44) {
+      sttLight.classList.add('pre-amber');
+      setTimeout(() => sttLight.classList.remove('pre-amber'), Math.floor(iv * 0.55));
+    }
+  }, iv);
+}
+
+function stopLightFlicker() {
+  if (flickerTimer) { clearInterval(flickerTimer); flickerTimer = null; }
+  sttLight.classList.remove('pre-amber');
+}
+
+function resetProximityState() {
+  currentProximity = 0;
+  proximityZone    = 0;
+  stopLightFlicker();
+}
+
+// ══ STATIC CANVAS ════════════════════════════════════════════════
+let rafId = null, noiseOn = false;
+
+function resizeCanvas() {
+  stcCanvas.width  = stcCanvas.offsetWidth;
+  stcCanvas.height = stcCanvas.offsetHeight;
+}
+
+function drawNoise() {
+  if (!noiseOn) return;
+  const ctx = stcCanvas.getContext('2d');
+  const w = stcCanvas.width, h = stcCanvas.height;
+  if (!w || !h) { rafId = requestAnimationFrame(drawNoise); return; }
+
+  const img  = ctx.createImageData(w, h);
+  const px   = img.data;
+  const prox = currentProximity;
+
+  // Density and wave patterns scale with proximity
+  const baseDensity = 0.22 + prox * 0.38;  // sparse → dense
+  const waveAmp     = prox > 0.6 ? (prox - 0.6) / 0.4 : 0;
+  const t           = Date.now() / 700;
+
+  for (let y = 0; y < h; y++) {
+    const waveMod    = waveAmp * Math.sin(y / 10 + t) * 0.12;
+    const rowDensity = Math.min(0.72, baseDensity + waveMod);
+
+    for (let x = 0; x < w; x++) {
+      const i = (y * w + x) * 4;
+      if (Math.random() < rowDensity) {
+        // Dark warm-brown speckles — darken the grille via multiply blend
+        const v  = Math.floor(Math.random() * 55 + 10);
+        px[i]   = Math.floor(v * 0.60);
+        px[i+1] = Math.floor(v * 0.44);
+        px[i+2] = Math.floor(v * 0.26);
+        px[i+3] = 255;
+      } else {
+        // White = transparent in multiply blend
+        px[i] = 255; px[i+1] = 255; px[i+2] = 255; px[i+3] = 255;
+      }
+    }
+  }
+  ctx.putImageData(img, 0, 0);
+  rafId = requestAnimationFrame(drawNoise);
+}
+
+function startNoise() {
+  noiseOn = true; resizeCanvas();
+  stcCanvas.classList.remove('off');
+  drawNoise();
+}
+
+function stopNoise() {
+  noiseOn = false; stcCanvas.classList.add('off');
+  if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+  const ctx = stcCanvas.getContext('2d');
+  if (stcCanvas.width && stcCanvas.height) {
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, 0, stcCanvas.width, stcCanvas.height);
+  }
+}
+
+// ══ LOCK-ON TRANSITION ═══════════════════════════════════════════
+
+async function triggerLockOn(type, data) {
+  lockingIn = true;
+  disableDial();
+  stopLightFlicker();
+  playLockSweep();
+  aFadeOut();
+  sttLight.className = 'amber';  // settle to solid during transition
+
+  await new Promise(r => setTimeout(r, 400));
+
+  stopNoise();
+  lockingIn = false;
+  resetProximityState();
+
+  if (type === 'chapter_start') {
+    showChapter(data.life_stage, data.text);
+    updateDots(data.step);
+    speak(data.text);
+  } else if (type === 'listen_only_start') {
+    showListenOnly(data.text, data.duration_seconds);
+    updateDots(data.step);
+    speak(data.text);
+  }
+}
+
+// ══ PANELS ═══════════════════════════════════════════════════════
+const STAGE_LABELS = {
+  'infancy-tween': 'childhood · infancy — tween',
+  '20s':           'early adulthood · twenties',
+  '30-40s':        'midlife · thirties — forties',
+  '60s':           'later life · sixties',
+  '80s':           'old age · eighties',
+};
+
+function hideAll() {
+  [npPanel, chPanel, loPanel].forEach(p => p.classList.remove('show'));
+  contBtn.classList.remove('show');
+  sttLight.className = '';
+  chName.className = ''; chName.textContent = '';
+}
+
+function showNarrator(txt) {
+  hideAll(); stopNoise();
+  npText.textContent = txt;
+  npPanel.classList.add('show');
+}
+
+function showChapter(lifeStage, txt) {
+  hideAll(); stopNoise(); aFadeOut();
+  chTag.textContent  = STAGE_LABELS[lifeStage] || lifeStage;
+  chLine.textContent = txt;
+  chPanel.classList.add('show');
+  sttLight.classList.add('amber');
+  chName.textContent = STAGE_LABELS[lifeStage] || '';
+  chName.classList.add('lit');
+  setTimeout(() => contBtn.classList.add('show'), 1400);
+}
+
+function showListenOnly(txt, dur) {
+  hideAll(); stopNoise(); aFadeOut();
+  loText.textContent = txt;
+  loPanel.classList.add('show');
+  sttLight.classList.add('white');
+  loBar.style.transition = 'none'; loBar.style.width = '100%';
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    loBar.style.transition = `width ${dur}s linear`;
+    loBar.style.width = '0%';
+  }));
+}
+
+// ══ SPEECH (v0 placeholder — replaced by pre-recorded audio in v1) ═
+function speak(txt, onEnd) {
+  if (!('speechSynthesis' in window)) { if (onEnd) onEnd(); return; }
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(txt);
+  u.rate = 0.80; u.pitch = 0.88; u.volume = 0.85;
+  if (onEnd) u.onend = onEnd;
+  window.speechSynthesis.speak(u);
+}
+
+// ══ WEBSOCKET ════════════════════════════════════════════════════
+function connectWS() {
+  const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+  sessionId = Date.now().toString(36) + Math.random().toString(36).slice(2,5);
+  console.log('[radio] session:', sessionId);
+  ws = new WebSocket(`${proto}//${location.host}/ws/${sessionId}`);
+  ws.onopen  = () => console.log('[radio] connected');
+  ws.onerror = () => showNarrator('connection lost.');
+  ws.onclose = () => { if (state !== ST.DONE) console.warn('[radio] closed'); };
+  ws.onmessage = e => { try { handle(JSON.parse(e.data)); } catch(err) { console.error(err); } };
+}
+
+function send(obj) {
+  if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(obj));
+}
+
+// ══ MESSAGE HANDLER ══════════════════════════════════════════════
+function handle(msg) {
+  switch (msg.type) {
+
+    case 'intro':
+      state = ST.INTRO;
+      showNarrator(msg.text);
+      const fb = setTimeout(sendStart, 8000);
+      speak(msg.text, () => { clearTimeout(fb); setTimeout(sendStart, 700); });
+      break;
+
+    case 'frequency_loaded':
+      state       = ST.SEARCH;
+      currentStep = msg.step;
+      activeFreq  = msg.active_frequency;
+      resetProximityState();
+      hideAll(); startNoise();
+      updateAudioForProximity(0);
+      enableDial(); updateDots(msg.step);
+      break;
+
+    case 'frequency_status':
+      break;  // proximity handled client-side
+
+    case 'chapter_start':
+      state       = ST.CHAPTER;
+      currentStep = msg.step;
+      triggerLockOn('chapter_start', msg);
+      break;
+
+    case 'listen_only_start':
+      state       = ST.LISTEN;
+      currentStep = msg.step;
+      triggerLockOn('listen_only_start', msg);
+      break;
+
+    case 'listen_only_end':
+      break;  // server sends frequency_loaded next
+
+    case 'outro':
+      state = ST.OUTRO;
+      disableDial(); showNarrator(msg.text);
+      dots.forEach(d => { d.className = 'dot done'; });
+      speak(msg.text);
+      break;
+
+    case 'experience_complete':
+      state = ST.DONE;
+      setTimeout(() => {
+        doneOvl.classList.add('show');
+        radioEl.style.transition = 'opacity 1.5s ease';
+        radioEl.style.opacity = '0';
+      }, 2200);
+      break;
+  }
+}
+
+// ══ ACTIONS ══════════════════════════════════════════════════════
+function sendStart() {
+  if (state !== ST.INTRO) return;
+  hideAll(); send({ type:'start' });
+}
+
+function chapterDone() {
+  if (state !== ST.CHAPTER) return;
+  if (currentStep >= 1 && currentStep <= 7) {
+    dots[currentStep - 1].className = 'dot done';
+  }
+  activeFreq = null;  // clear to prevent stale proximity feedback
+  resetProximityState();
+  hideAll(); startNoise();
+  updateAudioForProximity(0);
+  enableDial();
+  send({ type:'chapter_complete' });
+  state = ST.SEARCH;
+}
+
+// ══ BOOT SEQUENCE ════════════════════════════════════════════════
+function boot() {
+  document.getElementById('start-screen').classList.add('out');
+  initAudio(); resizeCanvas();
+  setTimeout(() => radioEl.classList.add('on'), 180);
+  setTimeout(async () => {
+    await scanFreq();
+    startNoise(); updateAudioForProximity(0);
+    connectWS();
+  }, 560);
+}
+
+function scanFreq() {
+  return new Promise(resolve => {
+    let cur = 880, dir = 1;
+    const id = setInterval(() => {
+      cur += dir * 11;
+      if (cur >= 1080) { cur = 1080; dir = -1; }
+      if (cur <= 880 && dir === -1) { cur = 880; clearInterval(id); resolve(); return; }
+      const freq = cur / 10;
+      freqVal.textContent = freq.toFixed(1);
+      knobAngle = ANGLE_MIN + (freq - FREQ_MIN) / (FREQ_MAX - FREQ_MIN) * (ANGLE_MAX - ANGLE_MIN);
+      knobEl.style.transform = `translate(-50%,-50%) rotate(${knobAngle}deg)`;
+    }, 14);
+  });
+}
+
+window.addEventListener('resize', () => { if (noiseOn) resizeCanvas(); });
+</script>
+</body>
+</html>
