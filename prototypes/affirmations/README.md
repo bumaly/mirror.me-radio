@@ -1,6 +1,6 @@
 # mirror — audio MVP
 
-A voice distortion prototype. The participant speaks; the mirror responds in their own voice, rewritten through a psychological lens.
+A voice cloning prototype. The participant speaks, then the mirror responds in their own voice, but responding to their words through a distorted psychological lens (the artist's inner critic).
 
 ## Setup
 
@@ -53,18 +53,17 @@ Open http://localhost:5000 in Chrome or Firefox.
 ## How to run a session
 
 1. **Enter participant name** in the sidebar
-2. **Choose a lens** (imposter syndrome, shame, perfectionism, body dysmorphia)
-3. **Record voice profile**: click "start recording", have the participant read anything aloud for ~60 seconds, stop recording, then click "create voice profile" — wait ~15 seconds for ElevenLabs to process
-4. **Select a prompt** from the list
-5. **Hold "hold to speak"**, participant reads the prompt aloud naturally, release when done
-6. Wait 3–5 seconds — the mirror responds in their voice with the distorted version
-7. **Save session** at the end to export the transcript as JSON
+2. **Record voice profile**: click "start recording", have the participant read anything aloud for ~60 seconds, stop recording, then click "create voice profile" — wait ~15 seconds for ElevenLabs to process
+3. **Select a prompt** from the list
+4. **Hold "hold to speak"**, participant reads the prompt aloud naturally, release when done
+5. Wait 3–5 seconds — the mirror responds in their voice with the distorted version
+6. **Save session** at the end to export the transcript as JSON
 
 ---
 
 ## Lenses
 
-- **Personal**: harsh inner critic, fundamental unworthiness, not deserving of love or belonging, achievements are luck and immediately diminished, competence is performance, exposure is imminent, nothing is enough, physical self perceived as fundamentally flawed
+- **Artist's inner critic**: harsh inner critic, fundamental unworthiness, not deserving of love or belonging, achievements are luck and immediately diminished, competence is performance, exposure is imminent, nothing is enough, physical self perceived as fundamentally flawed
 
 You can add custom lenses by editing the `LENSES` dict in `app.py`.
 
@@ -90,13 +89,11 @@ Each saved session is stored as JSON in `/sessions/`. Format:
 }
 ```
 
-This JSON is your documentation artifact — keep it alongside any video recordings of participant reactions.
-
 ---
 
 ## Notes
 
-- **Lag**: expect 3–5 seconds total. This is the dramatic beat. Don't fight it.
+- **Lag**: expect 3–5 seconds total.
 - **Voice quality**: ElevenLabs needs clean audio. Record in a quiet room, close to the mic.
 - **Browser**: use Chrome or Firefox. Safari has inconsistent MediaRecorder support.
-- **Microphone**: any decent USB mic or headset works. The Shure SM58 through the MOTU M2 will give you the cleanest clone.
+- **Microphone**: any decent USB mic or headset works. 
