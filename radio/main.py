@@ -49,7 +49,7 @@ INTRO_TEXT = "..."
 
 OUTRO_TEXT = "..."
 
-LISTEN_ONLY_DURATION = 12  # seconds (v0 placeholder; replace with actual audio length in v1)
+LISTEN_ONLY_DURATION = 3  # seconds (placeholder — no audio yet; replace with clip length in v1)
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -154,6 +154,22 @@ async def ws_endpoint(websocket: WebSocket, session_id: str):
             # ----------------------------------------------------------
             if msg == "start" and not session["started"]:
                 session["started"] = True
+                advance_step(session)
+                step = current_step(session)
+                await websocket.send_json({
+                    "type": "frequency_loaded",
+                    "active_frequency": session["active_frequency"],
+                    "lock_on_radius": step["lock_on_radius"],
+                    "step": session["current_step_index"],
+                })
+
+            # ----------------------------------------------------------
+            # skip_to_last — testing shortcut: jump to final storypoint
+            # ----------------------------------------------------------
+            elif msg == "skip_to_last":
+                session["started"] = True
+                session["locked_on"] = False
+                session["current_step_index"] = 6  # advance_step will move to 7 (80s)
                 advance_step(session)
                 step = current_step(session)
                 await websocket.send_json({

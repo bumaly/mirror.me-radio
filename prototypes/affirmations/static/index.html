@@ -8,18 +8,18 @@
   @import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;1,300&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap');
 
   :root {
-    --bg: #0a0a0a;
-    --surface: #111111;
-    --border: #222222;
-    --dim: #333333;
-    --muted: #666666;
-    --text: #c8c8c8;
-    --bright: #e8e8e8;
-    --accent: #c8a882;
-    --danger: #8a4a4a;
-    --danger-bright: #c87070;
-    --green: #4a8a6a;
-    --green-bright: #70c890;
+    --bg:           #A8C8E0;
+    --surface:      rgba(225,238,252,0.58);
+    --border:       rgba(80,130,175,0.20);
+    --dim:          rgba(30,70,110,0.22);
+    --muted:        #4A6882;
+    --text:         #1A3048;
+    --bright:       #0C1E2E;
+    --accent:       #4A8EB2;
+    --danger:       #8a4a4a;
+    --danger-bright:#b03838;
+    --green:        #3a7a5a;
+    --green-bright: #4a9870;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -34,6 +34,18 @@
     display: flex;
     flex-direction: column;
   }
+  body::before {
+    content: ''; position: fixed; inset: 0; z-index: -1;
+    background:
+      radial-gradient(ellipse 50% 42% at 20% 54%, rgba(200,175,220,0.12) 0%, transparent 55%),
+      radial-gradient(ellipse 78% 62% at 65% 18%, rgba(252,255,255,0.92) 0%, rgba(208,230,250,0.80) 52%, transparent 78%),
+      radial-gradient(ellipse 100% 100% at 50% 50%, #C8DCF2 0%, #90B4D0 50%, #6890B2 100%);
+    animation: drift 22s ease-in-out infinite alternate;
+  }
+  @keyframes drift {
+    from { transform: translate(-4%, -3%); }
+    to   { transform: translate(4%,  3%); }
+  }
 
   /* HEADER */
   header {
@@ -42,6 +54,9 @@
     display: flex;
     align-items: baseline;
     gap: 24px;
+    background: rgba(218,234,252,0.55);
+    backdrop-filter: blur(20px);
+    position: sticky; top: 0; z-index: 10;
   }
 
   .wordmark {
@@ -100,6 +115,8 @@
     display: flex;
     flex-direction: column;
     gap: 28px;
+    background: rgba(218,234,252,0.48);
+    backdrop-filter: blur(18px);
   }
 
   .section-label {
@@ -388,6 +405,8 @@
     font-size: 10px;
     color: var(--muted);
     letter-spacing: 0.06em;
+    background: rgba(218,234,252,0.35);
+    backdrop-filter: blur(12px);
   }
 
   #timing-bar span b { color: var(--text); font-weight: normal; }
@@ -401,6 +420,8 @@
     align-items: center;
     font-size: 11px;
     color: var(--muted);
+    background: rgba(218,234,252,0.55);
+    backdrop-filter: blur(20px);
   }
 
   #save-btn {
@@ -483,6 +504,13 @@
     color: var(--muted);
     letter-spacing: 0.06em;
   }
+
+  #review-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
 </style>
 </head>
 <body>
@@ -507,7 +535,6 @@
       </div>
     </div>
 
-    <input type="hidden" id="lens-select" value="personal">
 
     <!-- VOICE SETUP -->
     <div id="voice-section">
@@ -612,7 +639,7 @@
           <button class="ctrl-btn hidden" id="replay-btn">play response</button>
         </div>
 
-        <div id="review-controls" class="hidden" style="display:flex; flex-direction:column; align-items:center; gap:12px;">
+        <div id="review-controls" class="hidden">
           <div id="review-meta" style="font-size:11px; color:var(--muted); letter-spacing:0.06em;"></div>
           <div style="display:flex; gap:12px;">
             <button class="ctrl-btn" id="rerecord-btn">re-record</button>
@@ -646,6 +673,10 @@
 </footer>
 
 <script>
+  function base64ToBlob(b64, type) {
+    return new Blob([Uint8Array.from(atob(b64), c => c.charCodeAt(0))], { type });
+  }
+
   // STATE
   let voiceReady = false;
   let voiceBlob = null;
@@ -665,7 +696,6 @@
   let exchanges = [];
   let exchangesByPrompt = {};
   let prompts = [];
-  let completedPrompts = new Set();
 
   // DOM
   const voiceRecBtn = document.getElementById('voice-rec-btn');
@@ -678,7 +708,6 @@
   const voiceDot = document.getElementById('voice-dot');
   const voiceStatusHeader = document.getElementById('voice-status-header');
 
-  const lensSelect = document.getElementById('lens-select');
   const participantName = document.getElementById('participant-name');
   const promptsList = document.getElementById('prompts-list');
 
@@ -751,9 +780,8 @@
     nextBtn.classList.add('hidden');
     replayBtn.classList.add('hidden');
     reviewControls.classList.add('hidden');
-    reviewControls.style.display = 'none';
 
-    if (completedPrompts.has(index)) {
+    if (exchangesByPrompt[index] !== undefined) {
       // Show stored results
       const stored = exchangesByPrompt[index];
       originalText.textContent = `"${stored.original}"`;
@@ -774,7 +802,7 @@
   }
 
   function updateProgress() {
-    const done = completedPrompts.size;
+    const done = Object.keys(exchangesByPrompt).length;
     const total = prompts.length;
     progressCounter.textContent = `${done} / ${total} prompts completed`;
   }
@@ -809,11 +837,15 @@
         voiceStatusEl.className = 'err';
         return;
       }
-      voiceMediaRecorder = new MediaRecorder(stream);
+      const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+        ? 'audio/webm;codecs=opus'
+        : MediaRecorder.isTypeSupported('audio/mp4') ? 'audio/mp4' : '';
+      voiceMediaRecorder = new MediaRecorder(stream, mimeType ? { mimeType } : {});
       voiceChunks = [];
       voiceMediaRecorder.ondataavailable = e => voiceChunks.push(e.data);
       voiceMediaRecorder.onstop = () => {
-        voiceBlob = new Blob(voiceChunks, { type: 'audio/wav' });
+        const actualType = voiceMediaRecorder.mimeType || 'audio/webm';
+        voiceBlob = new Blob(voiceChunks, { type: actualType });
         cloneBtn.disabled = false;
         voiceStatusEl.textContent = `recorded ${voiceSeconds}s — ready to clone`;
         stream.getTracks().forEach(t => t.stop());
@@ -856,7 +888,8 @@
     voiceStatusEl.className = '';
 
     const formData = new FormData();
-    formData.append('audio', voiceBlob, 'voice_sample.wav');
+    const ext = voiceBlob.type.includes('mp4') ? 'mp4' : 'webm';
+    formData.append('audio', voiceBlob, `voice_sample.${ext}`);
     formData.append('name', name);
 
     try {
@@ -866,7 +899,6 @@
       if (data.success) {
         voiceReady = true;
         updateVoiceUI(true, name);
-        lensSelect.dispatchEvent(new Event('change'));
       } else {
         voiceStatusEl.textContent = `error: ${data.error}`;
         voiceStatusEl.className = 'err';
@@ -892,14 +924,6 @@
     }
   }
 
-  lensSelect.addEventListener('change', async () => {
-    await fetch('/api/set-lens', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ lens: lensSelect.value })
-    });
-  });
-
   // SESSION RECORDING
   let holdTimeout = null;
 
@@ -914,7 +938,6 @@
     sessionBlob = null;
     sessionDuration = 0;
     reviewControls.classList.add('hidden');
-    reviewControls.style.display = 'none';
 
     let stream;
     try {
@@ -924,12 +947,15 @@
       recordBtn.textContent = 'hold to speak';
       return;
     }
-    sessionMediaRecorder = new MediaRecorder(stream);
+    const sMimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+      ? 'audio/webm;codecs=opus'
+      : MediaRecorder.isTypeSupported('audio/mp4') ? 'audio/mp4' : '';
+    sessionMediaRecorder = new MediaRecorder(stream, sMimeType ? { mimeType: sMimeType } : {});
     sessionChunks = [];
     sessionMediaRecorder.ondataavailable = e => sessionChunks.push(e.data);
     sessionMediaRecorder.onstop = () => {
       stream.getTracks().forEach(t => t.stop());
-      sessionBlob = new Blob(sessionChunks, { type: 'audio/wav' });
+      sessionBlob = new Blob(sessionChunks, { type: sessionMediaRecorder.mimeType || 'audio/webm' });
       showReview();
     };
     sessionMediaRecorder.start();
@@ -961,26 +987,34 @@
     recordBtn.classList.add('hidden');
     reviewMeta.textContent = `${sessionDuration}s recorded`;
     reviewControls.classList.remove('hidden');
-    reviewControls.style.display = 'flex';
   }
 
+  let replayUrl = null;
   replayBtn.addEventListener('click', () => {
-    if (replayAudio) { replayAudio.pause(); replayAudio = null; replayBtn.textContent = 'play response'; return; }
+    if (replayAudio) {
+      replayAudio.pause();
+      replayAudio = null;
+      URL.revokeObjectURL(replayUrl);
+      replayUrl = null;
+      replayBtn.textContent = 'play response';
+      return;
+    }
     const stored = exchangesByPrompt[currentPromptIndex];
     if (!stored) return;
-    const audioData = atob(stored.audio_base64);
-    const audioArray = new Uint8Array(audioData.length);
-    for (let i = 0; i < audioData.length; i++) audioArray[i] = audioData.charCodeAt(i);
-    const audioBlob = new Blob([audioArray], { type: 'audio/mp3' });
-    replayAudio = new Audio(URL.createObjectURL(audioBlob));
+    replayUrl = URL.createObjectURL(base64ToBlob(stored.audio_base64, 'audio/mp3'));
+    replayAudio = new Audio(replayUrl);
     replayBtn.textContent = 'stop';
     replayAudio.play();
-    replayAudio.onended = () => { replayAudio = null; replayBtn.textContent = 'play response'; };
+    replayAudio.onended = () => {
+      replayAudio = null;
+      URL.revokeObjectURL(replayUrl);
+      replayUrl = null;
+      replayBtn.textContent = 'play response';
+    };
   });
 
   rerecordBtn.addEventListener('click', () => {
     reviewControls.classList.add('hidden');
-    reviewControls.style.display = 'none';
     recordBtn.textContent = 'hold to speak';
     recordBtn.classList.remove('hidden');
     recordBtn.disabled = false;
@@ -988,7 +1022,6 @@
 
   sendBtn.addEventListener('click', async () => {
     reviewControls.classList.add('hidden');
-    reviewControls.style.display = 'none';
     showProcessingStep('transcribing...');
     recStatusHeader.textContent = 'processing';
     await processAudio(sessionBlob);
@@ -1001,7 +1034,8 @@
 
   async function processAudio(blob) {
     const formData = new FormData();
-    formData.append('audio', blob, 'recording.wav');
+    const recExt = blob.type.includes('mp4') ? 'mp4' : 'webm';
+    formData.append('audio', blob, `recording.${recExt}`);
 
     try {
       // Fake step labels for UX feedback (actual steps happen server-side)
@@ -1018,6 +1052,7 @@
       if (data.error) {
         originalText.textContent = `error: ${data.error}`;
         exchangeOriginal.classList.remove('hidden');
+        recordBtn.classList.remove('hidden');
         recordBtn.textContent = 'try again';
         recordBtn.disabled = false;
         return;
@@ -1028,13 +1063,9 @@
       exchangeOriginal.classList.remove('hidden');
 
       // Play audio, then show distorted text
-      const audioData = atob(data.audio_base64);
-      const audioArray = new Uint8Array(audioData.length);
-      for (let i = 0; i < audioData.length; i++) audioArray[i] = audioData.charCodeAt(i);
-      const audioBlob = new Blob([audioArray], { type: 'audio/mp3' });
-      const audioUrl = URL.createObjectURL(audioBlob);
+      const audioUrl = URL.createObjectURL(base64ToBlob(data.audio_base64, 'audio/mp3'));
       const audio = new Audio(audioUrl);
-
+      audio.onended = () => URL.revokeObjectURL(audioUrl);
       audio.play().catch(e => console.warn('Audio playback blocked:', e));
 
       // Show distorted text as audio plays
@@ -1055,7 +1086,6 @@
         prompt: prompts[currentPromptIndex],
         original: data.original,
         distorted: data.distorted,
-        lens: lensSelect.value,
         timings: data.timings,
       });
 
@@ -1067,9 +1097,9 @@
       };
 
       // Mark prompt done
-      completedPrompts.add(currentPromptIndex);
-      document.querySelector(`.prompt-item[data-index="${currentPromptIndex}"]`).classList.add('done');
-      document.querySelector(`.prompt-item[data-index="${currentPromptIndex}"]`).classList.remove('active');
+      const doneItem = document.querySelector(`.prompt-item[data-index="${currentPromptIndex}"]`);
+      doneItem.classList.add('done');
+      doneItem.classList.remove('active');
       updateProgress();
       updateSessionLog();
 
@@ -1082,22 +1112,17 @@
       processingDisplay.classList.add('hidden');
       originalText.textContent = `connection error`;
       exchangeOriginal.classList.remove('hidden');
+      recordBtn.classList.remove('hidden');
       recordBtn.textContent = 'try again';
       recordBtn.disabled = false;
     }
   }
 
   nextBtn.addEventListener('click', () => {
-    // Find next uncompleted prompt
-    let next = null;
-    for (let i = currentPromptIndex + 1; i < prompts.length; i++) {
-      if (!completedPrompts.has(i)) { next = i; break; }
-    }
-    if (next === null) {
-      for (let i = 0; i < currentPromptIndex; i++) {
-        if (!completedPrompts.has(i)) { next = i; break; }
-      }
-    }
+    const keys = [...prompts.keys()];
+    const next = keys.find(i => i > currentPromptIndex && !exchangesByPrompt[i])
+               ?? keys.find(i => i < currentPromptIndex && !exchangesByPrompt[i])
+               ?? null;
     if (next !== null) selectPrompt(next);
     else {
       // All done — add Thank You tab and navigate to it
