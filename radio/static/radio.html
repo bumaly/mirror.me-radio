@@ -423,7 +423,7 @@ body::before {
       </div>
 
       <div class="knob-col">
-        <svg id="knob-scale" viewBox="0 0 156 156"></svg>
+        <svg id="knob-scale" viewBox="0 0 156 156" overflow="visible"></svg>
         <div id="knob" class="disabled">
           <div id="knob-body">
             <div id="knob-dot"></div>
@@ -507,10 +507,13 @@ function updateDots(step) {
 
 // ══ KNOB SCALE SVG ═══════════════════════════════════════════════
 (function buildScale() {
-  const cx = 78, cy = 78, r = 72;
+  const cx = 78, cy = 78;
+  const rI = 66;  // inner ring — first turn  (88–101.3 MHz)
+  const rO = 80;  // outer ring — second turn (101.3–108 MHz)
+  // ponytail: split = one full 360° rotation from ANGLE_MIN
+  const SPLIT = FREQ_MIN + (360 / (ANGLE_MAX - ANGLE_MIN)) * (FREQ_MAX - FREQ_MIN); // 101.333
   const ns = 'http://www.w3.org/2000/svg';
 
-  // Maps a frequency to a visual SVG position on the ring
   function aXY(freq, rad) {
     const deg = ANGLE_MIN + (freq - FREQ_MIN) / (FREQ_MAX - FREQ_MIN) * (ANGLE_MAX - ANGLE_MIN);
     const a = (deg - 90) * Math.PI / 180;
@@ -536,23 +539,41 @@ function updateDots(step) {
     knobScale.appendChild(el);
   }
 
-  // Full circle track — 540° throw spans the full ring
-  const circle = document.createElementNS(ns, 'circle');
-  circle.setAttribute('cx', cx); circle.setAttribute('cy', cy);
-  circle.setAttribute('r', r);
-  circle.setAttribute('fill', 'none');
-  circle.setAttribute('stroke', 'rgba(60,110,155,0.28)');
-  circle.setAttribute('stroke-width', '1');
-  knobScale.appendChild(circle);
+  // ── Inner ring — full circle (first turn: 88–101.3 MHz) ──────────
+  const innerCircle = document.createElementNS(ns, 'circle');
+  innerCircle.setAttribute('cx', cx); innerCircle.setAttribute('cy', cy);
+  innerCircle.setAttribute('r', rI);
+  innerCircle.setAttribute('fill', 'none');
+  innerCircle.setAttribute('stroke', 'rgba(60,110,155,0.28)');
+  innerCircle.setAttribute('stroke-width', '1');
+  knobScale.appendChild(innerCircle);
 
-  // Minor ticks every 2 MHz
-  for (let f = 90; f <= 106; f += 2) {
-    mkLine(aXY(f, r), aXY(f, r - 5), 'rgba(60,110,155,0.38)', 1);
-  }
-  // Major ticks + labels every 4 MHz
-  [88, 92, 96, 100, 104, 108].forEach(f => {
-    mkLine(aXY(f, r), aXY(f, r - 9), 'rgba(40,90,135,0.58)', 1.5);
-    mkText(aXY(f, r - 17), String(f), 'rgba(30,80,125,0.80)', '6.5');
+  [90, 94, 98].forEach(f =>
+    mkLine(aXY(f, rI), aXY(f, rI - 5), 'rgba(60,110,155,0.38)', 1));
+  [88, 92, 96, 100].forEach(f => {
+    mkLine(aXY(f, rI), aXY(f, rI - 9), 'rgba(40,90,135,0.58)', 1.5);
+    mkText(aXY(f, rI - 17), String(f), 'rgba(30,80,125,0.80)', '6.5');
+  });
+
+  // ── Outer ring — south arc (second turn: 101.3–108 MHz) ──────────
+  // Arc runs east→south→west (clockwise, sweep=1), exactly 180°
+  const p1 = aXY(SPLIT, rO);     // east: (158, 78)
+  const p2 = aXY(FREQ_MAX, rO);  // west:  (-2, 78)
+  const arc = document.createElementNS(ns, 'path');
+  arc.setAttribute('d', `M ${p1.x.toFixed(1)} ${p1.y.toFixed(1)} A ${rO} ${rO} 0 0 1 ${p2.x.toFixed(1)} ${p2.y.toFixed(1)}`);
+  arc.setAttribute('fill', 'none');
+  arc.setAttribute('stroke', 'rgba(60,110,155,0.18)');
+  arc.setAttribute('stroke-width', '1');
+  knobScale.appendChild(arc);
+
+  // Radial bridge at split point connecting inner→outer ring
+  mkLine(aXY(SPLIT, rI), aXY(SPLIT, rO), 'rgba(60,110,155,0.35)', 1);
+
+  [102, 106].forEach(f =>
+    mkLine(aXY(f, rO), aXY(f, rO + 5), 'rgba(60,110,155,0.25)', 1));
+  [104, 108].forEach(f => {
+    mkLine(aXY(f, rO), aXY(f, rO + 9), 'rgba(40,90,135,0.38)', 1.5);
+    mkText(aXY(f, rO + 16), String(f), 'rgba(30,80,125,0.55)', '6.5');
   });
 })();
 
