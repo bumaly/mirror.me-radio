@@ -1,4 +1,4 @@
-# mirror — audio MVP
+# mirror.me/ affirmations: an audio MVP of mirror.me/mirror
 
 A voice cloning prototype. The participant speaks, then the mirror responds in their own voice, but responding to their words through a distorted psychological lens (the artist's inner critic).
 
