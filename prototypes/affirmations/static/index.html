@@ -488,7 +488,7 @@
 <body>
 
 <header>
-  <span class="wordmark">mirror</span>
+  <span class="wordmark">mirror.me/affirmations</span>
   <span class="tagline">audio prototype v0.1</span>
   <div id="status-bar">
     <span><span class="status-dot" id="voice-dot"></span><span id="voice-status-header">no voice profile</span></span>
@@ -801,7 +801,14 @@
   voiceRecBtn.addEventListener('click', async () => {
     if (!voiceRecording) {
       // Start
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      let stream;
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      } catch (e) {
+        voiceStatusEl.textContent = `microphone error: ${e.message}`;
+        voiceStatusEl.className = 'err';
+        return;
+      }
       voiceMediaRecorder = new MediaRecorder(stream);
       voiceChunks = [];
       voiceMediaRecorder.ondataavailable = e => voiceChunks.push(e.data);
@@ -909,7 +916,14 @@
     reviewControls.classList.add('hidden');
     reviewControls.style.display = 'none';
 
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    let stream;
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    } catch (e) {
+      recStatusHeader.textContent = 'mic error';
+      recordBtn.textContent = 'hold to speak';
+      return;
+    }
     sessionMediaRecorder = new MediaRecorder(stream);
     sessionChunks = [];
     sessionMediaRecorder.ondataavailable = e => sessionChunks.push(e.data);
@@ -990,8 +1004,6 @@
     formData.append('audio', blob, 'recording.wav');
 
     try {
-      showProcessingStep('transcribing...');
-      
       // Fake step labels for UX feedback (actual steps happen server-side)
       const stepTimer = setTimeout(() => showProcessingStep('rewriting through lens...'), 1200);
       const stepTimer2 = setTimeout(() => showProcessingStep('synthesizing voice...'), 2400);
@@ -1023,7 +1035,7 @@
       const audioUrl = URL.createObjectURL(audioBlob);
       const audio = new Audio(audioUrl);
 
-      audio.play();
+      audio.play().catch(e => console.warn('Audio playback blocked:', e));
 
       // Show distorted text as audio plays
       distortedText.textContent = `"${data.distorted}"`;

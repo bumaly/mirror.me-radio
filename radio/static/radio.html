@@ -7,41 +7,55 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400&family=Cormorant+Garamond:ital,wght@0,300;1,300;1,400&display=swap');
 
-/* ── CHANGE 1: LIGHT MODE PALETTE ────────────────────────────── */
 :root {
-  --page-bg:   #E8E0CC;
-  --face-a:    #EAE0C4;
-  --face-b:    #D4C89A;
-  --face-c:    #C8BC8E;
-  --grille-a:  #C8B07A;
-  --grille-b:  #B09860;
-  --border:    rgba(100,78,38,0.28);
-  --text:      #4A3A20;
-  --text-dim:  #7A6848;
-  --text-faint:#A89870;
-  --amber:     #B07818;
-  --amb-glow:  rgba(176,120,24,0.30);
-  --amb-dim:   rgba(100,78,28,0.35);
-  --disp-bg:   #D8D09A;
-  --disp-num:  #7A5010;
-  --knob-a:    #3C2810;
-  --knob-b:    #1E1008;
-  --dot-off:   rgba(0,0,0,0.14);
-  --dot-found: #B07818;
-  --dot-done:  rgba(0,0,0,0.26);
+  --bg:
+    radial-gradient(ellipse 48% 40% at 20% 52%, rgba(175,148,210,0.10) 0%, transparent 55%),
+    radial-gradient(ellipse 62% 52% at 65% 20%, rgba(198,224,246,0.18) 0%, transparent 58%),
+    radial-gradient(ellipse 100% 80% at 50% 50%, #243548 0%, #182535 58%, #101924 100%);
+  --page-bg:   #1A2838;
+  --face-a:    rgba(215,232,246,0.52);
+  --face-b:    rgba(182,208,230,0.42);
+  --face-c:    rgba(148,188,215,0.36);
+  --grille-a:  #8FB4CC;
+  --grille-b:  #5A8AAD;
+  --border:    rgba(180,212,238,0.38);
+  --text:      #192839;
+  --text-dim:  #385470;
+  --text-faint:#5E80A0;
+  --amber:     #7AADCA;
+  --amb-glow:  rgba(100,168,204,0.35);
+  --amb-dim:   rgba(78,138,178,0.35);
+  --disp-bg:   rgba(195,220,240,0.58);
+  --disp-num:  #1C3A58;
+  --knob-a:    #152030;
+  --knob-b:    #0A1520;
+  --dot-off:   rgba(20,50,82,0.22);
+  --dot-found: #7AADCA;
+  --dot-done:  rgba(20,50,82,0.32);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 html, body {
   height: 100%;
-  background: var(--page-bg);
+  background: var(--bg);
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: 'DM Mono', monospace;
   font-size: 12px;
   overflow: hidden;
+}
+body::before {
+  content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background:
+    radial-gradient(ellipse 55% 44% at 18% 54%, rgba(190,158,220,0.09) 0%, transparent 55%),
+    radial-gradient(ellipse 64% 50% at 68% 18%, rgba(205,230,250,0.14) 0%, transparent 58%);
+  animation: drift 22s ease-in-out infinite alternate;
+}
+@keyframes drift {
+  from { transform: translate(-4%, -3%); }
+  to   { transform: translate(4%,  3%); }
 }
 
 /* ── START SCREEN ─────────────────────────────────────────────── */
@@ -50,7 +64,7 @@ html, body {
   position: fixed; inset: 0;
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
-  background: var(--page-bg);
+  background: var(--bg);
   z-index: 50;
   transition: opacity 0.7s ease;
 }
@@ -59,22 +73,22 @@ html, body {
 .ss-mark {
   font-family: 'Cormorant Garamond', serif;
   font-size: 52px; font-style: italic; font-weight: 300;
-  color: var(--text); letter-spacing: 0.02em;
+  color: rgba(210,232,248,0.90); letter-spacing: 0.02em;
 }
 .ss-sub {
   font-size: 9px; letter-spacing: 0.38em; text-transform: uppercase;
-  color: var(--text-dim); margin-top: 6px; margin-bottom: 44px;
+  color: rgba(148,192,220,0.62); margin-top: 6px; margin-bottom: 44px;
 }
 .ss-desc {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 15px; font-style: italic; color: var(--text-faint);
+  font-size: 15px; font-style: italic; color: rgba(172,208,230,0.68);
   text-align: center; max-width: 230px; line-height: 2;
   margin-bottom: 52px;
 }
 #power-btn {
   background: none;
   border: 1px solid var(--amb-dim);
-  color: var(--text-dim);
+  color: rgba(148,192,220,0.62);
   padding: 13px 42px;
   font-family: 'DM Mono', monospace;
   font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
@@ -93,18 +107,22 @@ html, body {
   width: 100%; max-width: 480px; padding: 0 16px;
   opacity: 0; transform: translateY(6px);
   transition: opacity 0.9s ease, transform 0.9s ease;
+  position: relative; z-index: 1;
 }
 #radio.on { opacity: 1; transform: none; }
 
 .rf-face {
   background: linear-gradient(160deg, var(--face-a) 0%, var(--face-b) 55%, var(--face-c) 100%);
+  backdrop-filter: blur(28px) saturate(1.5);
+  -webkit-backdrop-filter: blur(28px) saturate(1.5);
   border: 1px solid var(--border);
   border-radius: 14px;
   padding: 22px 22px 18px;
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.55),
-    inset 0 -1px 0 rgba(0,0,0,0.10),
-    0 28px 70px rgba(0,0,0,0.22);
+    inset 0 1px 0 rgba(255,255,255,0.48),
+    inset 0 -1px 0 rgba(0,0,0,0.08),
+    0 28px 80px rgba(0,0,0,0.42),
+    0 2px 20px rgba(0,0,0,0.22);
   display: flex; flex-direction: column; gap: 16px;
 }
 
@@ -131,17 +149,17 @@ html, body {
 }
 #stt-light.amber {
   background: var(--amber); border-color: var(--amber);
-  box-shadow: 0 0 8px rgba(176,120,24,0.75), 0 0 22px rgba(176,120,24,0.3);
+  box-shadow: 0 0 8px rgba(100,168,204,0.80), 0 0 22px rgba(100,168,204,0.32);
 }
 #stt-light.white {
-  background: rgba(255,252,240,0.94); border-color: rgba(220,210,180,0.7);
-  box-shadow: 0 0 10px rgba(255,240,200,0.8), 0 0 28px rgba(255,240,200,0.35);
+  background: rgba(230,245,255,0.96); border-color: rgba(190,220,240,0.80);
+  box-shadow: 0 0 10px rgba(200,232,255,0.85), 0 0 28px rgba(200,232,255,0.35);
 }
-/* pre-amber: dim flicker state before lock-on */
+/* pre-lock: dim flicker state before lock-on */
 #stt-light.pre-amber {
-  background: rgba(176,120,24,0.42);
-  border-color: rgba(176,120,24,0.55);
-  box-shadow: 0 0 5px rgba(176,120,24,0.35);
+  background: rgba(100,168,204,0.42);
+  border-color: rgba(100,168,204,0.55);
+  box-shadow: 0 0 5px rgba(100,168,204,0.35);
 }
 
 /* ── SPEAKER GRILLE ───────────────────────────────────────────── */
@@ -185,19 +203,19 @@ html, body {
 #np-text {
   font-family: 'Cormorant Garamond', serif;
   font-size: 15px; font-style: italic; font-weight: 300;
-  color: #4A3810; line-height: 1.9; text-align: center;
+  color: #192839; line-height: 1.9; text-align: center;
 }
 
 /* chapter panel */
 #ch-panel { gap: 12px; }
 #ch-tag {
   font-size: 8px; letter-spacing: 0.22em; text-transform: uppercase;
-  color: #7A6040;
+  color: #385470;
 }
 #ch-line {
   font-family: 'Cormorant Garamond', serif;
   font-size: 16px; font-style: italic; font-weight: 300;
-  color: #3A2208; line-height: 1.75; text-align: center;
+  color: #192839; line-height: 1.75; text-align: center;
 }
 #cont-btn {
   margin-top: 6px;
@@ -216,21 +234,21 @@ html, body {
 #lo-panel { gap: 11px; }
 .wl-orb {
   width: 34px; height: 34px; border-radius: 50%;
-  background: radial-gradient(circle, rgba(255,248,220,0.96) 0%, rgba(255,240,180,0.38) 55%, transparent 100%);
-  box-shadow: 0 0 22px rgba(255,240,180,0.6), 0 0 56px rgba(255,240,180,0.2);
+  background: radial-gradient(circle, rgba(230,248,255,0.96) 0%, rgba(178,225,248,0.38) 55%, transparent 100%);
+  box-shadow: 0 0 22px rgba(178,225,252,0.60), 0 0 56px rgba(178,225,252,0.20);
   animation: wlp 3.2s ease-in-out infinite;
 }
 @keyframes wlp { 0%,100%{transform:scale(1);opacity:.85} 50%{transform:scale(1.1);opacity:1} }
 #lo-text {
   font-family: 'Cormorant Garamond', serif;
   font-size: 15px; font-style: italic;
-  color: #4A3810; line-height: 1.75; text-align: center;
+  color: #192839; line-height: 1.75; text-align: center;
 }
 .lo-track {
   width: 78%; height: 1px; background: rgba(0,0,0,0.15); overflow: hidden;
 }
 #lo-bar {
-  height: 100%; background: rgba(180,140,60,0.5);
+  height: 100%; background: rgba(90,148,185,0.55);
   width: 100%; transition: none;
 }
 
@@ -281,10 +299,10 @@ html, body {
 #knob-body {
   width: 100%; height: 100%; border-radius: 50%;
   background: radial-gradient(circle at 36% 32%, var(--knob-a) 0%, var(--knob-b) 70%);
-  border: 1px solid rgba(255,200,120,0.12);
+  border: 1px solid rgba(150,200,240,0.10);
   box-shadow:
-    inset 0 1px 3px rgba(255,200,100,0.08),
-    0 4px 18px rgba(0,0,0,0.55),
+    inset 0 1px 3px rgba(150,200,240,0.06),
+    0 4px 18px rgba(0,0,0,0.60),
     0 1px 4px rgba(0,0,0,0.4);
   position: relative;
   transition: box-shadow 0.3s;
@@ -292,21 +310,21 @@ html, body {
 #knob-body::before {
   content: '';
   position: absolute; inset: 8px; border-radius: 50%;
-  border: 1px solid rgba(255,200,100,0.05);
+  border: 1px solid rgba(150,200,240,0.06);
 }
 #knob-dot {
   position: absolute; top: 9px; left: 50%;
   transform: translateX(-50%);
   width: 5px; height: 5px; border-radius: 50%;
   background: var(--amber);
-  box-shadow: 0 0 6px rgba(176,120,24,0.65);
+  box-shadow: 0 0 6px rgba(100,168,204,0.70);
 }
 #knob.disabled { cursor: not-allowed; opacity: 0.42; }
 #knob.active #knob-body {
   box-shadow:
-    inset 0 1px 3px rgba(255,200,100,0.08),
-    0 4px 18px rgba(0,0,0,0.55),
-    0 0 18px rgba(176,120,24,0.08);
+    inset 0 1px 3px rgba(150,200,240,0.06),
+    0 4px 18px rgba(0,0,0,0.60),
+    0 0 18px rgba(100,168,204,0.10);
 }
 
 /* ── PROGRESS DOTS ────────────────────────────────────────────── */
@@ -322,7 +340,7 @@ html, body {
 }
 .dot.found {
   background: var(--dot-found); border-color: var(--dot-found);
-  box-shadow: 0 0 5px rgba(176,120,24,0.5);
+  box-shadow: 0 0 5px rgba(100,168,204,0.55);
 }
 .dot.done { background: var(--dot-done); border-color: var(--dot-done); }
 
@@ -340,11 +358,11 @@ html, body {
 #done-ovl.show { opacity: 1; pointer-events: auto; }
 .done-glyph {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 44px; font-style: italic; color: var(--text-faint);
+  font-size: 44px; font-style: italic; color: rgba(155,198,225,0.52);
 }
 .done-msg {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 15px; font-style: italic; color: var(--text-dim);
+  font-size: 15px; font-style: italic; color: rgba(178,212,235,0.75);
   text-align: center; max-width: 200px; line-height: 1.9;
 }
 </style>
@@ -515,18 +533,18 @@ function updateDots(step) {
   circle.setAttribute('cx', cx); circle.setAttribute('cy', cy);
   circle.setAttribute('r', r);
   circle.setAttribute('fill', 'none');
-  circle.setAttribute('stroke', 'rgba(100,78,38,0.25)');
+  circle.setAttribute('stroke', 'rgba(60,110,155,0.28)');
   circle.setAttribute('stroke-width', '1');
   knobScale.appendChild(circle);
 
   // Minor ticks every 2 MHz
   for (let f = 90; f <= 106; f += 2) {
-    mkLine(aXY(f, r), aXY(f, r - 5), 'rgba(100,78,38,0.35)', 1);
+    mkLine(aXY(f, r), aXY(f, r - 5), 'rgba(60,110,155,0.38)', 1);
   }
   // Major ticks + labels every 4 MHz
   [88, 92, 96, 100, 104, 108].forEach(f => {
-    mkLine(aXY(f, r), aXY(f, r - 9), 'rgba(80,58,20,0.55)', 1.5);
-    mkText(aXY(f, r - 17), String(f), 'rgba(74,58,32,0.8)', '6.5');
+    mkLine(aXY(f, r), aXY(f, r - 9), 'rgba(40,90,135,0.58)', 1.5);
+    mkText(aXY(f, r - 17), String(f), 'rgba(30,80,125,0.80)', '6.5');
   });
 })();
 
@@ -769,11 +787,11 @@ function drawNoise() {
     for (let x = 0; x < w; x++) {
       const i = (y * w + x) * 4;
       if (Math.random() < rowDensity) {
-        // Dark warm-brown speckles — darken the grille via multiply blend
+        // Cool blue-gray speckles — darken the grille via multiply blend
         const v  = Math.floor(Math.random() * 55 + 10);
-        px[i]   = Math.floor(v * 0.60);
-        px[i+1] = Math.floor(v * 0.44);
-        px[i+2] = Math.floor(v * 0.26);
+        px[i]   = Math.floor(v * 0.28);
+        px[i+1] = Math.floor(v * 0.42);
+        px[i+2] = Math.floor(v * 0.62);
         px[i+3] = 255;
       } else {
         // White = transparent in multiply blend
@@ -886,7 +904,7 @@ function speak(txt, onEnd) {
 // ══ WEBSOCKET ════════════════════════════════════════════════════
 function connectWS() {
   const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
-  sessionId = Date.now().toString(36) + Math.random().toString(36).slice(2,5);
+  sessionId = crypto.randomUUID();
   console.log('[radio] session:', sessionId);
   ws = new WebSocket(`${proto}//${location.host}/ws/${sessionId}`);
   ws.onopen  = () => console.log('[radio] connected');
@@ -919,9 +937,6 @@ function handle(msg) {
       updateAudioForProximity(0);
       enableDial(); updateDots(msg.step);
       break;
-
-    case 'frequency_status':
-      break;  // proximity handled client-side
 
     case 'chapter_start':
       state       = ST.CHAPTER;

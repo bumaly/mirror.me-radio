@@ -19,7 +19,7 @@ pip install -r requirements.txt
 - **ElevenLabs**: https://elevenlabs.io
   - Used for: voice cloning + synthesis
   - Free tier: 10,000 chars/month, enough for prototyping
-  - Note: voice clones count against your voice slot limit on free tier
+  - Note: voice clones count against the voice slot limit on free tier
 
 ### 3. Set environment variables
 
@@ -28,13 +28,13 @@ export OPENAI_API_KEY="sk-..."
 export ELEVENLABS_API_KEY="..."
 ```
 
-Or create a `.env` file and load it:
+Or use a `.env` file with python-dotenv:
 ```bash
 OPENAI_API_KEY=sk-...
 ELEVENLABS_API_KEY=...
 ```
 
-Then: `pip install python-dotenv` and add this to the top of app.py:
+Install: `pip install python-dotenv` and add to the top of `app.py`:
 ```python
 from dotenv import load_dotenv
 load_dotenv()
@@ -65,7 +65,7 @@ Open http://localhost:5000 in Chrome or Firefox.
 
 - **Artist's inner critic**: harsh inner critic, fundamental unworthiness, not deserving of love or belonging, achievements are luck and immediately diminished, competence is performance, exposure is imminent, nothing is enough, physical self perceived as fundamentally flawed
 
-You can add custom lenses by editing the `LENSES` dict in `app.py`.
+Add custom lenses by editing the `LENSES` dict in `app.py`.
 
 ---
 

@@ -3,7 +3,7 @@ import time
 import json
 import tempfile
 from pathlib import Path
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify, send_from_directory, session
 from flask_cors import CORS
 import openai
 from elevenlabs.client import ElevenLabs
@@ -11,18 +11,12 @@ from elevenlabs import VoiceSettings
 import base64
 
 app = Flask(__name__, static_folder='static')
-CORS(app)
+app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-mirror")
+CORS(app, supports_credentials=True)
 
 # API clients - keys from environment
 openai_client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 eleven_client = ElevenLabs(api_key=os.environ.get("ELEVENLABS_API_KEY"))
-
-# Session state
-session = {
-    "voice_id": None,
-    "lens": "personal",
-    "participant_name": None,
-}
 
 LENSES = {
     "personal": """You are the interior critical voice of a specific person. Your job is to rewrite first-person affirmative statements through this voice's exact logic and language. Be less articulate than you think you should be.
@@ -62,10 +56,10 @@ def index():
 @app.route('/api/status')
 def status():
     return jsonify({
-        "voice_cloned": session["voice_id"] is not None,
-        "voice_id": session["voice_id"],
-        "lens": session["lens"],
-        "participant": session["participant_name"],
+        "voice_cloned": session.get("voice_id") is not None,
+        "voice_id": session.get("voice_id"),
+        "lens": session.get("lens", "personal"),
+        "participant": session.get("participant_name"),
         "prompts": PROMPTS,
         "lenses": list(LENSES.keys()),
     })
@@ -108,7 +102,7 @@ def clone_voice():
 
 @app.route('/api/set-lens', methods=['POST'])
 def set_lens():
-    data = request.json
+    data = request.json or {}
     lens = data.get('lens')
     if lens not in LENSES:
         return jsonify({"error": "Unknown lens"}), 400
@@ -119,7 +113,7 @@ def set_lens():
 @app.route('/api/process', methods=['POST'])
 def process_audio():
     """Core pipeline: audio -> transcribe -> rewrite -> synthesize -> return audio."""
-    if not session["voice_id"]:
+    if not session.get("voice_id"):
         return jsonify({"error": "No voice profile. Complete setup first."}), 400
 
     if 'audio' not in request.files:
@@ -128,6 +122,7 @@ def process_audio():
     audio_file = request.files['audio']
     t_start = time.time()
 
+    tmp_path = None
     with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as tmp:
         audio_file.save(tmp.name)
         tmp_path = tmp.name
@@ -145,7 +140,7 @@ def process_audio():
         t2 = time.time()
 
         # Step 2: Rewrite through lens
-        lens_prompt = LENSES[session["lens"]]
+        lens_prompt = LENSES[session.get("lens", "personal")]
         rewrite_response = openai_client.chat.completions.create(
             model="gpt-4o",
             messages=[
@@ -160,7 +155,7 @@ def process_audio():
 
         # Step 3: Synthesize in selected voice
         audio_stream = eleven_client.text_to_speech.convert(
-            voice_id=session["voice_id"],
+            voice_id=session.get("voice_id"),
             text=distorted_text,
             model_id="eleven_flash_v2_5",
             voice_settings=VoiceSettings(
@@ -175,8 +170,6 @@ def process_audio():
         audio_bytes = b"".join(chunk for chunk in audio_stream)
         t4 = time.time()
 
-        os.unlink(tmp_path)
-
         return jsonify({
             "original": original_text,
             "distorted": distorted_text,
@@ -190,9 +183,10 @@ def process_audio():
         })
 
     except Exception as e:
-        if os.path.exists(tmp_path):
-            os.unlink(tmp_path)
         return jsonify({"error": str(e)}), 500
+    finally:
+        if tmp_path and os.path.exists(tmp_path):
+            os.unlink(tmp_path)
 
 
 @app.route('/api/save-session', methods=['POST'])
@@ -200,11 +194,12 @@ def save_session():
     """Save session transcript for documentation."""
     data = request.json
     timestamp = int(time.time())
-    filename = f"session_{session['participant_name']}_{timestamp}.json"
+    name = session.get("participant_name") or "unknown"
+    filename = f"session_{name}_{timestamp}.json"
 
     session_data = {
-        "participant": session["participant_name"],
-        "lens": session["lens"],
+        "participant": session.get("participant_name"),
+        "lens": session.get("lens", "personal"),
         "timestamp": timestamp,
         "exchanges": data.get("exchanges", []),
     }

@@ -62,12 +62,7 @@ def pick_frequency(previous: Optional[float]) -> float:
         freq = round(random.uniform(88.1, 107.9), 1)
         if previous is None or abs(freq - previous) >= 5.0:
             return freq
-    # Deterministic fallback — guaranteed spacing
-    candidates = [88.3, 93.7, 99.1, 104.3, 107.7]
-    for c in candidates:
-        if previous is None or abs(c - previous) >= 5.0:
-            return c
-    return 95.1
+    return 88.1 if (previous is None or abs(88.1 - previous) >= 5.0) else 107.9
 
 
 def make_session(session_id: str) -> dict:
@@ -93,10 +88,10 @@ def advance_step(session: dict) -> bool:
     session["locked_on"] = False
 
     idx = session["current_step_index"]
-    if idx >= len(NARRATIVE_SEQUENCE):
+    if idx >= len(session["narrative_sequence"]):
         return False
 
-    step = NARRATIVE_SEQUENCE[idx]
+    step = session["narrative_sequence"][idx]
     if step["type"] in ("chapter", "listen_only"):
         prev = session["active_frequency"]
         session["previous_frequency"] = prev
@@ -121,7 +116,7 @@ async def debug_session(session_id: str):
     s = sessions.get(session_id)
     if not s:
         return {"error": "session not found"}
-    return {k: v for k, v in s.items() if isinstance(v, (str, int, float, bool, list, dict, type(None)))}
+    return s
 
 
 # ---------------------------------------------------------------------------
@@ -133,8 +128,13 @@ async def debug_session(session_id: str):
 async def ws_endpoint(websocket: WebSocket, session_id: str):
     await websocket.accept()
 
-    session = make_session(session_id)
-    sessions[session_id] = session
+    # Preserve step progress if client reconnects with the same session_id
+    if session_id in sessions:
+        session = sessions[session_id]
+        session["locked_on"] = False  # old WS is gone; reset lock so client can re-tune
+    else:
+        session = make_session(session_id)
+        sessions[session_id] = session
     listen_task: Optional[asyncio.Task] = None
 
     # Intro fires immediately on connect — no client action needed
@@ -244,7 +244,7 @@ async def _advance_and_notify(websocket: WebSocket, session: dict) -> None:
         await websocket.send_json({
             "type": "outro",
             "text": OUTRO_TEXT,
-            "step": 8,
+            "step": session["current_step_index"],
         })
         await websocket.send_json({"type": "experience_complete"})
 
