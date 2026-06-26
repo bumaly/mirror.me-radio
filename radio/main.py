@@ -49,7 +49,7 @@ INTRO_TEXT = "..."
 
 OUTRO_TEXT = "..."
 
-LISTEN_ONLY_DURATION = 12  # seconds (v0 placeholder; replace with actual audio length in v1)
+LISTEN_ONLY_DURATION = 3  # seconds (placeholder — no audio yet; replace with clip length in v1)
 
 # ---------------------------------------------------------------------------
 # Helpers

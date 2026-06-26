@@ -9,10 +9,10 @@
 
 :root {
   --bg:
-    radial-gradient(ellipse 48% 40% at 20% 52%, rgba(175,148,210,0.10) 0%, transparent 55%),
-    radial-gradient(ellipse 62% 52% at 65% 20%, rgba(198,224,246,0.18) 0%, transparent 58%),
-    radial-gradient(ellipse 100% 80% at 50% 50%, #243548 0%, #182535 58%, #101924 100%);
-  --page-bg:   #1A2838;
+    radial-gradient(ellipse 50% 42% at 20% 54%, rgba(200,175,220,0.12) 0%, transparent 55%),
+    radial-gradient(ellipse 78% 62% at 65% 18%, rgba(252,255,255,0.92) 0%, rgba(208,230,250,0.80) 52%, transparent 78%),
+    radial-gradient(ellipse 100% 100% at 50% 50%, #C8DCF2 0%, #90B4D0 50%, #6890B2 100%);
+  --page-bg:   #A8C8E0;
   --face-a:    rgba(215,232,246,0.52);
   --face-b:    rgba(182,208,230,0.42);
   --face-c:    rgba(148,188,215,0.36);
@@ -49,8 +49,8 @@ html, body {
 body::before {
   content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
   background:
-    radial-gradient(ellipse 55% 44% at 18% 54%, rgba(190,158,220,0.09) 0%, transparent 55%),
-    radial-gradient(ellipse 64% 50% at 68% 18%, rgba(205,230,250,0.14) 0%, transparent 58%);
+    radial-gradient(ellipse 55% 44% at 18% 54%, rgba(200,175,220,0.10) 0%, transparent 55%),
+    radial-gradient(ellipse 64% 50% at 68% 18%, rgba(255,255,255,0.22) 0%, transparent 58%);
   animation: drift 22s ease-in-out infinite alternate;
 }
 @keyframes drift {
@@ -73,22 +73,22 @@ body::before {
 .ss-mark {
   font-family: 'Cormorant Garamond', serif;
   font-size: 52px; font-style: italic; font-weight: 300;
-  color: rgba(210,232,248,0.90); letter-spacing: 0.02em;
+  color: var(--text); letter-spacing: 0.02em;
 }
 .ss-sub {
   font-size: 9px; letter-spacing: 0.38em; text-transform: uppercase;
-  color: rgba(148,192,220,0.62); margin-top: 6px; margin-bottom: 44px;
+  color: var(--text-dim); margin-top: 6px; margin-bottom: 44px;
 }
 .ss-desc {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 15px; font-style: italic; color: rgba(172,208,230,0.68);
+  font-size: 15px; font-style: italic; color: var(--text-faint);
   text-align: center; max-width: 230px; line-height: 2;
   margin-bottom: 52px;
 }
 #power-btn {
   background: none;
   border: 1px solid var(--amb-dim);
-  color: rgba(148,192,220,0.62);
+  color: var(--text-dim);
   padding: 13px 42px;
   font-family: 'DM Mono', monospace;
   font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
@@ -104,17 +104,17 @@ body::before {
 /* ── RADIO BODY ───────────────────────────────────────────────── */
 
 #radio {
-  width: 100%; max-width: 480px; padding: 0 16px;
+  width: min(480px, 100vw); padding: 0 16px;
   opacity: 0; transform: translateY(6px);
   transition: opacity 0.9s ease, transform 0.9s ease;
   position: relative; z-index: 1;
+  flex-shrink: 0;
 }
 #radio.on { opacity: 1; transform: none; }
 
 .rf-face {
   background: linear-gradient(160deg, var(--face-a) 0%, var(--face-b) 55%, var(--face-c) 100%);
   backdrop-filter: blur(28px) saturate(1.5);
-  -webkit-backdrop-filter: blur(28px) saturate(1.5);
   border: 1px solid var(--border);
   border-radius: 14px;
   padding: 22px 22px 18px;
@@ -208,7 +208,7 @@ body::before {
 
 /* chapter panel */
 #ch-panel { gap: 12px; }
-#ch-tag {
+#ch-tag, #lo-tag {
   font-size: 8px; letter-spacing: 0.22em; text-transform: uppercase;
   color: #385470;
 }
@@ -217,18 +217,6 @@ body::before {
   font-size: 16px; font-style: italic; font-weight: 300;
   color: #192839; line-height: 1.75; text-align: center;
 }
-#cont-btn {
-  margin-top: 6px;
-  background: none; border: 1px solid var(--amb-dim);
-  color: var(--text-dim); padding: 6px 18px;
-  font-family: 'DM Mono', monospace;
-  font-size: 10px; letter-spacing: 0.1em;
-  cursor: pointer;
-  opacity: 0;
-  transition: opacity 0.4s 1.3s, border-color 0.2s, box-shadow 0.2s;
-}
-#cont-btn.show { opacity: 1; }
-#cont-btn:hover { border-color: var(--amber); box-shadow: 0 0 12px var(--amb-glow); }
 
 /* listen-only panel */
 #lo-panel { gap: 11px; }
@@ -257,12 +245,13 @@ body::before {
 .rf-ctrl { display: flex; align-items: center; gap: 14px; }
 
 /* frequency display */
-.freq-col { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+.freq-col { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px; }
 #freq-disp {
   background: var(--disp-bg);
   border: 1px solid rgba(0,0,0,0.16);
   border-radius: 4px; padding: 11px 14px;
   box-shadow: inset 0 1px 5px rgba(0,0,0,0.12), inset 0 -1px 0 rgba(255,255,255,0.4);
+  width: 100%; box-sizing: border-box;
 }
 #freq-val {
   font-family: 'DM Mono', monospace;
@@ -355,16 +344,30 @@ body::before {
   transition: opacity 1.4s ease 0.4s;
   z-index: 40;
 }
+#done-stc {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  opacity: 0.18; transition: opacity 2s ease;
+  pointer-events: none;
+}
+#done-stc.off { opacity: 0; }
 #done-ovl.show { opacity: 1; pointer-events: auto; }
 .done-glyph {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 44px; font-style: italic; color: rgba(155,198,225,0.52);
+  font-size: 44px; font-style: italic; color: var(--text-faint);
 }
 .done-msg {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 15px; font-style: italic; color: rgba(178,212,235,0.75);
+  font-size: 15px; font-style: italic; color: var(--text-dim);
   text-align: center; max-width: 200px; line-height: 1.9;
 }
+#done-thanks {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--text-faint);
+  opacity: 0; transition: opacity 1.2s ease;
+  margin-top: 8px;
+}
+#done-thanks.show { opacity: 1; }
 </style>
 </head>
 <body>
@@ -399,10 +402,10 @@ body::before {
       <div id="ch-panel" class="gp">
         <div id="ch-tag"></div>
         <div id="ch-line"></div>
-        <button id="cont-btn" onclick="chapterDone()">continue →</button>
       </div>
 
       <div id="lo-panel" class="gp">
+        <div id="lo-tag"></div>
         <div class="wl-orb"></div>
         <div id="lo-text"></div>
         <div class="lo-track"><div id="lo-bar"></div></div>
@@ -436,8 +439,10 @@ body::before {
 
 <!-- COMPLETE -->
 <div id="done-ovl">
+  <canvas id="done-stc"></canvas>
   <div class="done-glyph">∅</div>
   <p class="done-msg">The radio goes quiet now.</p>
+  <p id="done-thanks">Thank you for experiencing mirror.me/radio</p>
 </div>
 
 <script>
@@ -456,6 +461,7 @@ let state        = ST.DORMANT;
 let ws           = null, sessionId = null;
 let dialActive   = false, currentStep = 0;
 let activeFreq   = null;          // target frequency from server
+let lastLifeStage = null;
 let currentProximity = 0;         // 0.0–1.0
 let proximityZone    = 0;         // 0=none, 1=low(0.5–0.82), 2=high(≥0.82)
 let lockingIn        = false;     // true during 400ms lock-on transition
@@ -470,8 +476,8 @@ const npText    = document.getElementById('np-text');
 const chPanel   = document.getElementById('ch-panel');
 const chTag     = document.getElementById('ch-tag');
 const chLine    = document.getElementById('ch-line');
-const contBtn   = document.getElementById('cont-btn');
 const loPanel   = document.getElementById('lo-panel');
+const loTag     = document.getElementById('lo-tag');
 const loText    = document.getElementById('lo-text');
 const loBar     = document.getElementById('lo-bar');
 const freqVal   = document.getElementById('freq-val');
@@ -480,6 +486,8 @@ const knobEl    = document.getElementById('knob');
 const knobScale = document.getElementById('knob-scale');
 const progDots  = document.getElementById('prog-dots');
 const doneOvl   = document.getElementById('done-ovl');
+const doneStc   = document.getElementById('done-stc');
+const doneThanks = document.getElementById('done-thanks');
 
 // ══ PROGRESS DOTS ════════════════════════════════════════════════
 const dots = [];
@@ -819,6 +827,23 @@ function stopNoise() {
   }
 }
 
+function startDoneStatic() {
+  doneStc.width = doneStc.offsetWidth; doneStc.height = doneStc.offsetHeight;
+  const ctx = doneStc.getContext('2d');
+  let raf;
+  doneStc.addEventListener('transitionend', () => cancelAnimationFrame(raf), { once: true });
+  (function loop() {
+    const img = ctx.createImageData(doneStc.width, doneStc.height);
+    const d = img.data;
+    for (let i = 0; i < d.length; i += 4) {
+      const v = Math.random() > 0.5 ? 255 : 0;
+      d[i] = d[i+1] = d[i+2] = v; d[i+3] = 255;
+    }
+    ctx.putImageData(img, 0, 0);
+    raf = requestAnimationFrame(loop);
+  })();
+}
+
 // ══ LOCK-ON TRANSITION ═══════════════════════════════════════════
 
 async function triggerLockOn(type, data) {
@@ -835,15 +860,10 @@ async function triggerLockOn(type, data) {
   lockingIn = false;
   resetProximityState();
 
-  if (type === 'chapter_start') {
-    showChapter(data.life_stage, data.text);
-    updateDots(data.step);
-    speak(data.text);
-  } else if (type === 'listen_only_start') {
-    showListenOnly(data.text, data.duration_seconds);
-    updateDots(data.step);
-    speak(data.text);
-  }
+  if (type === 'chapter_start') showChapter(data.life_stage, data.text);
+  else showListenOnly(data.text, data.duration_seconds);
+  updateDots(data.step);
+  speak('a storypoint starts playing');
 }
 
 // ══ PANELS ═══════════════════════════════════════════════════════
@@ -857,7 +877,6 @@ const STAGE_LABELS = {
 
 function hideAll() {
   [npPanel, chPanel, loPanel].forEach(p => p.classList.remove('show'));
-  contBtn.classList.remove('show');
   sttLight.className = '';
   chName.className = ''; chName.textContent = '';
 }
@@ -870,20 +889,25 @@ function showNarrator(txt) {
 
 function showChapter(lifeStage, txt) {
   hideAll(); stopNoise(); aFadeOut();
+  lastLifeStage = lifeStage;
   chTag.textContent  = STAGE_LABELS[lifeStage] || lifeStage;
   chLine.textContent = txt;
   chPanel.classList.add('show');
   sttLight.classList.add('amber');
   chName.textContent = STAGE_LABELS[lifeStage] || '';
   chName.classList.add('lit');
-  setTimeout(() => contBtn.classList.add('show'), 1400);
+  setTimeout(() => chapterDone(), 3000);
 }
 
 function showListenOnly(txt, dur) {
   hideAll(); stopNoise(); aFadeOut();
+  const label = STAGE_LABELS[lastLifeStage] || '';
+  loTag.textContent  = label;
   loText.textContent = txt;
   loPanel.classList.add('show');
   sttLight.classList.add('white');
+  chName.textContent = label;
+  chName.classList.add('lit');
   loBar.style.transition = 'none'; loBar.style.width = '100%';
   requestAnimationFrame(() => requestAnimationFrame(() => {
     loBar.style.transition = `width ${dur}s linear`;
@@ -893,6 +917,7 @@ function showListenOnly(txt, dur) {
 
 // ══ SPEECH (v0 placeholder — replaced by pre-recorded audio in v1) ═
 function speak(txt, onEnd) {
+  if (!txt || /^\.+$/.test(txt.trim())) { if (onEnd) onEnd(); return; }
   if (!('speechSynthesis' in window)) { if (onEnd) onEnd(); return; }
   window.speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(txt);
@@ -966,6 +991,23 @@ function handle(msg) {
         doneOvl.classList.add('show');
         radioEl.style.transition = 'opacity 1.5s ease';
         radioEl.style.opacity = '0';
+        startDoneStatic();
+        setTimeout(() => {
+          doneThanks.classList.add('show');
+          setTimeout(() => {
+            doneStc.classList.add('off');
+            if (actx) {
+              const now = actx.currentTime;
+              const t   = now + 2.5;
+              [sGain, hum1Gain, hum2Gain].forEach(g => {
+                if (!g) return;
+                g.gain.cancelScheduledValues(now);
+                g.gain.setValueAtTime(Math.max(g.gain.value, 0.0001), now);
+                g.gain.exponentialRampToValueAtTime(0.0001, t);
+              });
+            }
+          }, 2000);
+        }, 2000);
       }, 2200);
       break;
   }
