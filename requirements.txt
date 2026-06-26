@@ -3,3 +3,6 @@ openai
 elevenlabs
 python-dotenv
 gunicorn
+fastapi
+uvicorn[standard]
+python-multipart
