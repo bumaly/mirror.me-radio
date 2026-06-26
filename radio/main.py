@@ -164,6 +164,22 @@ async def ws_endpoint(websocket: WebSocket, session_id: str):
                 })
 
             # ----------------------------------------------------------
+            # skip_to_last — testing shortcut: jump to final storypoint
+            # ----------------------------------------------------------
+            elif msg == "skip_to_last":
+                session["started"] = True
+                session["locked_on"] = False
+                session["current_step_index"] = 6  # advance_step will move to 7 (80s)
+                advance_step(session)
+                step = current_step(session)
+                await websocket.send_json({
+                    "type": "frequency_loaded",
+                    "active_frequency": session["active_frequency"],
+                    "lock_on_radius": step["lock_on_radius"],
+                    "step": session["current_step_index"],
+                })
+
+            # ----------------------------------------------------------
             # tune — client reports current dial position
             # ----------------------------------------------------------
             elif msg == "tune" and session["started"] and not session["locked_on"]:
