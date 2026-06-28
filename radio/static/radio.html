@@ -27,8 +27,8 @@
   --amb-dim:   rgba(78,138,178,0.35);
   --disp-bg:   rgba(195,220,240,0.58);
   --disp-num:  #1C3A58;
-  --knob-a:    #152030;
-  --knob-b:    #0A1520;
+  --knob-a:    #2E5272;
+  --knob-b:    #1A3448;
   --dot-off:   rgba(20,50,82,0.22);
   --dot-found: #7AADCA;
   --dot-done:  rgba(20,50,82,0.32);
@@ -242,10 +242,10 @@ body::before {
 
 /* ── CONTROLS ROW ─────────────────────────────────────────────── */
 
-.rf-ctrl { display: flex; align-items: center; gap: 14px; }
+.rf-ctrl { display: flex; align-items: center; gap: 28px; }
 
 /* frequency display */
-.freq-col { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px; }
+.freq-col { flex: 0 0 190px; display: flex; flex-direction: column; gap: 5px; }
 #freq-disp {
   background: var(--disp-bg);
   border: 1px solid rgba(0,0,0,0.16);
@@ -272,7 +272,7 @@ body::before {
 /* ── ROTARY KNOB ──────────────────────────────────────────────── */
 
 .knob-col {
-  position: relative; width: 156px; height: 156px; flex-shrink: 0;
+  position: relative; width: 156px; height: 156px; flex-shrink: 0; margin-left: auto;
 }
 #knob-scale {
   position: absolute; inset: 0; width: 100%; height: 100%;
@@ -552,7 +552,7 @@ function updateDots(step) {
     mkLine(aXY(f, rI), aXY(f, rI - 5), 'rgba(60,110,155,0.38)', 1));
   [88, 92, 96, 100].forEach(f => {
     mkLine(aXY(f, rI), aXY(f, rI - 9), 'rgba(40,90,135,0.58)', 1.5);
-    mkText(aXY(f, rI - 17), String(f), 'rgba(30,80,125,0.80)', '6.5');
+    mkText(aXY(f, rI + 10), String(f), 'rgba(30,80,125,0.80)', '6.5');
   });
 
   // ── Outer ring — south arc (second turn: 101.3–108 MHz) ──────────
