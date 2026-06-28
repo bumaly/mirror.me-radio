@@ -40,7 +40,7 @@ Implements the core mechanic: dial tuning, frequency discovery, static, and narr
 
 Narrative content integration is in progress (v0.1).
 
-### What's working in v0
+### What's working in v0.2
 - Rotary dial simulation with frequency lock-on
 - Narrowing lock-on radii across Storypoints (harder to find as the story progresses)
 - Narrative sequence: infancy → 20s → 30s–40s → 60s → 80s → outro
@@ -50,7 +50,7 @@ Narrative content integration is in progress (v0.1).
 
 ### Roadmap
 
-**v0.1 — Narrative draft integration** ← current
+**v0.3 — Narrative draft integration** ← current
 - Integrate narrative draft into existing prototype
 - End-to-end experience playable in browser
 
