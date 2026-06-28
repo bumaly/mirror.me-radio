@@ -4,7 +4,7 @@ An offline interactive art installation built inside a modified ham radio system
 
 The piece navigates one protagonist's lifelong struggle with depression. How the story ends depends on how the participant responds.
 
-**Status:** Active development — v0 radio prototype complete. Local open-source stack in progress.
+**Status:** Active development — v0.1 in progress (narrative draft integration)
 
 ---
 
@@ -38,7 +38,7 @@ radio_v0/
 
 Implements the core mechanic: dial tuning, frequency discovery, static, and narrative branching across life stages.
 
-Narrative content is not included in this repository and will be integrated in v0.1.
+Narrative content integration is in progress (v0.1).
 
 ### What's working in v0
 - Rotary dial simulation with frequency lock-on
@@ -50,7 +50,7 @@ Narrative content is not included in this repository and will be integrated in v
 
 ### Roadmap
 
-**v0.1 — Narrative draft integration**
+**v0.1 — Narrative draft integration** ← current
 - Integrate narrative draft into existing prototype
 - End-to-end experience playable in browser
 
