@@ -12,24 +12,14 @@ The piece navigates one protagonist's lifelong struggle with depression. How the
 
 ```
 radio_v0/
-├── radio/                        # Main installation prototype (v0)
-│   ├── main.py                   # FastAPI server + WebSocket + narrative engine
-│   ├── models.py                 # Session state schema (Pydantic)
-│   ├── requirements.txt          # Python dependencies
-│   ├── static/
-│   │   └── radio.html            # Frontend (dial UI, WebSocket client)
-│   ├── 2026-04-28-mirrorme-radio-architecture.md
-│   └── 2026-04-30-v0-playtest-notes.md
-│
-└── prototypes/
-    └── affirmations/             # Earlier voice pipeline prototype
-        ├── app.py                # Flask server — voice clone + distortion pipeline
-        ├── requirements.txt
-        ├── static/
-        │   └── index.html
-        ├── docs/versions/v1.0/   # Architecture, features, performance notes
-        ├── README.md             # Setup and usage for this prototype
-        └── VERSIONS.md
+└── radio/                        # Main installation prototype (v0)
+    ├── main.py                   # FastAPI server + WebSocket + narrative engine
+    ├── models.py                 # Session state schema (Pydantic)
+    ├── requirements.txt          # Python dependencies
+    ├── static/
+    │   └── radio.html            # Frontend (dial UI, WebSocket client)
+    ├── 2026-04-28-mirrorme-radio-architecture.md
+    └── 2026-04-30-v0-playtest-notes.md
 ```
 
 ---
@@ -80,11 +70,9 @@ Open http://localhost:8000 in your browser.
 
 ---
 
-## prototypes/affirmations/ — voice pipeline prototype
+## Related projects
 
-An earlier standalone prototype testing voice cloning latency and the distortion pipeline. The participant records their voice, then speaks affirmations aloud — the system transcribes, rewrites through a psychological lens, and plays the distorted version back in their own cloned voice.
-
-Uses third-party APIs (OpenAI Whisper, GPT-4o, ElevenLabs). See `prototypes/affirmations/README.md` for setup instructions.
+**[mirror.me/affirmations](https://github.com/bumaly/mirror.me-affirmations)** — an earlier standalone prototype testing voice cloning latency and the distortion pipeline. Originally developed under `prototypes/affirmations/` in this repo; extracted into its own repo in June 2026 as it grew into a distinct project.
 
 ---
 
