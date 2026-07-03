@@ -5,3 +5,7 @@ __pycache__/
 *.pyc
 *.pyo
 .DS_Store
+# Virtual environments anywhere in the repo
+**/venv/
+**/.venv/
+**/node_modules/
