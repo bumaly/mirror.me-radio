@@ -25,9 +25,7 @@ prototypes/affirmations/          # Voice pipeline prototype (snapshot)
 
 local-stack/                      # v1 local stack — v1.0-alpha
 ├── listen.py                     # Continuous mic capture + Silero-VAD
-└── stt/                          # STT 
-
-evaluation harness
+└── stt/                          # STT evaluation harness
 ├── interface.py              # Provider contract
 ├── faster_whisper_stt.py     # CPU provider
 ├── mlx_whisper_stt.py        # Apple Silicon provider (selected)
