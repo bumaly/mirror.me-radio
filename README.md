@@ -9,6 +9,7 @@ The piece navigates one protagonist's lifelong struggle with depression. How the
 ---
 
 ## Repository structure
+````
 radio_v0/
 └── radio/                        # Main installation prototype (v0)
 ├── main.py                   # FastAPI server + WebSocket + narrative engine
@@ -28,6 +29,7 @@ local-stack/                      # v1 local stack — v1.0-alpha
 ├── mlx_whisper_stt.py        # Apple Silicon provider (selected)
 ├── evaluate.py               # Evaluation runner
 └── DECISION.md               # Model selection rationale
+````
 ---
 
 ## radio/ — installation prototype (v0)
