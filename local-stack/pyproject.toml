@@ -1,0 +1,15 @@
+[project]
+name = "mirror-radio"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "faster-whisper>=1.2.1",
+    "mlx-whisper>=0.4.3",
+    "numpy<2.3",
+    "scipy>=1.18.0",
+    "silero-vad>=6.2.1",
+    "sounddevice>=0.5.5",
+    "torch>=2.12.1",
+]
