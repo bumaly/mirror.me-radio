@@ -4,24 +4,30 @@ An offline interactive art installation built inside a modified ham radio system
 
 The piece navigates one protagonist's lifelong struggle with depression. How the story ends depends on how the participant responds.
 
-**Status:** Active development — v0.3 in progress (open-source stack migration)
+**Status:** Active development — v0.3 in progress (v1.0-alpha: audio + STT complete, LLM in progress)
 
 ---
 
 ## Repository structure
-
-```
 radio_v0/
 └── radio/                        # Main installation prototype (v0)
-    ├── main.py                   # FastAPI server + WebSocket + narrative engine
-    ├── models.py                 # Session state schema (Pydantic)
-    ├── requirements.txt          # Python dependencies
-    ├── static/
-    │   └── radio.html            # Frontend (dial UI, WebSocket client)
-    ├── 2026-04-28-mirrorme-radio-architecture.md
-    └── 2026-04-30-v0-playtest-notes.md
-```
-
+├── main.py                   # FastAPI server + WebSocket + narrative engine
+├── models.py                 # Session state schema (Pydantic)
+├── requirements.txt          # Python dependencies
+├── static/
+│   └── radio.html            # Frontend (dial UI, WebSocket client)
+├── 2026-04-28-mirrorme-radio-architecture.md
+└── 2026-04-30-v0-playtest-notes.md
+prototypes/affirmations/          # Voice pipeline prototype (snapshot)
+└── SNAPSHOT.md                   # Origin note + link to active repo
+local-stack/                      # v1 local stack — v1.0-alpha
+├── listen.py                     # Continuous mic capture + Silero-VAD
+└── stt/                          # STT evaluation harness
+├── interface.py              # Provider contract
+├── faster_whisper_stt.py     # CPU provider
+├── mlx_whisper_stt.py        # Apple Silicon provider (selected)
+├── evaluate.py               # Evaluation runner
+└── DECISION.md               # Model selection rationale
 ---
 
 ## radio/ — installation prototype (v0)
@@ -40,7 +46,7 @@ Implements the core mechanic: dial tuning, frequency discovery, static, and narr
 
 **v0.3 — Open-source stack** ← current
 - Migrate from third-party APIs to fully local, air-gapped models
-- Local speech-to-text (Faster-Whisper)
+- ✓ Local speech-to-text (mlx-whisper-small, ~305ms/clip on M-series)
 - Affective voice recognition (EmoVoice)
 - Locally-hosted LLM (Gemma via Ollama)
 - Local text-to-speech (Kokoro or Chatterbox)
