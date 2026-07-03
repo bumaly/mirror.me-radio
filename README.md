@@ -19,11 +19,15 @@ radio_v0/
 │   └── radio.html            # Frontend (dial UI, WebSocket client)
 ├── 2026-04-28-mirrorme-radio-architecture.md
 └── 2026-04-30-v0-playtest-notes.md
+
 prototypes/affirmations/          # Voice pipeline prototype (snapshot)
 └── SNAPSHOT.md                   # Origin note + link to active repo
+
 local-stack/                      # v1 local stack — v1.0-alpha
 ├── listen.py                     # Continuous mic capture + Silero-VAD
-└── stt/                          # STT evaluation harness
+└── stt/                          # STT 
+
+evaluation harness
 ├── interface.py              # Provider contract
 ├── faster_whisper_stt.py     # CPU provider
 ├── mlx_whisper_stt.py        # Apple Silicon provider (selected)
