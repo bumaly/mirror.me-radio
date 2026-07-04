@@ -51,9 +51,9 @@ Implements the core mechanic: dial tuning, frequency discovery, static, and narr
 **v0.3 — Open-source stack** ← current
 - Migrate from third-party APIs to fully local, air-gapped models
 - ✓ Local speech-to-text (mlx-whisper-small, ~305ms/clip on M-series)
-- Affective voice recognition (EmoVoice)
-- Locally-hosted LLM (Gemma via Ollama)
-- Local text-to-speech (Kokoro or Chatterbox)
+- Voice affect recognition 
+- Locally-hosted LLM 
+- Local text-to-speech 
 
 **v0.4 — Narrative draft + integration**
 - Write narrative draft across all Storypoints
