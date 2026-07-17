@@ -10,27 +10,36 @@ The piece navigates one protagonist's lifelong struggle with depression. How the
 
 ## Repository structure
 ````
-radio_v0/
-└── radio/                        # Main installation prototype (v0)
-├── main.py                   # FastAPI server + WebSocket + narrative engine
-├── models.py                 # Session state schema (Pydantic)
-├── requirements.txt          # Python dependencies
+radio_v0/                         # Main installation prototype (v0)
+├── main.py                       # FastAPI server + WebSocket + narrative engine
+├── requirements.txt              # Python dependencies
 ├── static/
-│   └── radio.html            # Frontend (dial UI, WebSocket client)
+│   └── radio.html                # Frontend (dial UI, WebSocket client)
 ├── 2026-04-28-mirrorme-radio-architecture.md
-└── 2026-04-30-v0-playtest-notes.md
+├── 2026-04-30-v0-playtest-notes.md
+└── 2026-06-28-dial-update.md
 
 prototypes/affirmations/          # Voice pipeline prototype (snapshot)
 └── SNAPSHOT.md                   # Origin note + link to active repo
 
 local-stack/                      # v1 local stack — v1.0-alpha
 ├── listen.py                     # Continuous mic capture + Silero-VAD
-└── stt/                          # STT evaluation harness
-├── interface.py              # Provider contract
-├── faster_whisper_stt.py     # CPU provider
-├── mlx_whisper_stt.py        # Apple Silicon provider (selected)
-├── evaluate.py               # Evaluation runner
-└── DECISION.md               # Model selection rationale
+├── TODO.md                       # Deferred integration items (trust engine)
+├── stt/                          # STT evaluation harness
+│   ├── interface.py              # Provider contract
+│   ├── faster_whisper_stt.py     # CPU provider
+│   ├── mlx_whisper_stt.py        # Apple Silicon provider (selected)
+│   ├── evaluate.py               # Evaluation runner
+│   └── DECISION.md               # Model selection rationale (2026-07-03)
+├── llm/                          # LLM character-persona screening
+│   ├── system_prompt.txt         # Character prompt (trust-based disclosure)
+│   ├── test_voice.py             # Scripted conversation harness (3 participant styles)
+│   └── DECISION.md               # Model selection rationale (2026-07-17, llama3.2:3b)
+└── tts/                          # TTS evaluation harness (eval ongoing)
+    ├── interface.py              # Provider contract
+    ├── piper_tts.py, mlx_audio_tts.py, dia_tts.py, ...   # Candidate providers
+    ├── evaluate.py               # Evaluation runner
+    └── DECISION.md               # Model selection rationale (in progress)
 ````
 ---
 
