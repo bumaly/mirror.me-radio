@@ -12,7 +12,7 @@ All inference runs locally. No cloud APIs. Sessions are deleted on exit.
 | Audio capture + VAD | ✓ Silero-VAD, tunable silence threshold (`listen.py`) | 2026-07-03 |
 | STT | ✓ mlx-whisper-small, ~305ms/clip on M-series — see `stt/DECISION.md` | 2026-07-03 |
 | LLM (inner critic) | ✓ llama3.2:3b via Ollama, sub-3s/turn, stress-tested — see `llm/DECISION.md` | 2026-07-17 |
-| TTS (fixed narrator voice) | ▶ eval ongoing — see `tts/DECISION.md` | — |
+| TTS (fixed narrator voice) | ▶ eval ongoing — built-in voices ruled out, next: cloning from artist recordings — see `tts/DECISION.md` | — |
 | Pipeline integration | pending | — |
 
 ## Run

@@ -1,8 +1,15 @@
 # TTS Decision — in progress
 
-**Goal: find a local, air-gapped TTS model for a fixed narrator voice** (no
-cloning needed — confirmed the installation uses one consistent voice, not a
-per-visitor cloned voice).
+**Goal: find a local, air-gapped TTS model for a fixed narrator voice.**
+
+**Direction change (2026-07-17):** the original plan assumed an out-of-the-box
+voice would do (one consistent narrator voice, no cloning). After listening to
+the built-in voices generated so far, all were ruled out — none carry the
+character. The voice will instead be cloned from the artist's own recordings,
+which puts cloning-capable models (XTTS, OpenVoice, etc.) back in scope and
+drops cloning-free models (Kokoro built-ins, Piper) unless used only as a
+latency baseline. Next step: record reference audio, then re-run the eval on
+the cloning candidates against it.
 
 **Context:** `mirror.me-affirmations` (an earlier prototype) used ElevenLabs
 (cloning + synthesis) and OpenAI (transcription + text rewrite) — entirely
@@ -14,22 +21,28 @@ port either.
 
 | Model | Local | Cloning | Notes |
 |-------|-------|---------|-------|
-| mlx-audio (Kokoro-82M) | ✓ MLX-native | ✗ (not needed) | Same runtime family as mlx-whisper; ~50+ built-in voices; primary candidate |
-| Piper | ✓ ONNX/CPU | ✗ | Very fast/tiny, lower expressiveness; fallback if Kokoro quality/packaging is a problem |
-| Coqui XTTS-v2 / StyleTTS2 | ✓ torch/MPS | ✓ | Not pursued — cloning support is dead weight now that the voice is fixed, and both are heavier/slower on Apple Silicon than an MLX-native model |
+| mlx-audio (Kokoro-82M) | ✓ MLX-native | ✗ | Built-in voices ruled out — none carry the character; keep only as latency baseline |
+| Piper | ✓ ONNX/CPU | ✗ | Built-in voices ruled out (same reason); fast latency baseline at best |
+| Coqui XTTS-v2 | ✓ torch/MPS | ✓ | Back in scope — cloning from artist's reference recordings |
+| OpenVoice | ✓ torch/MPS | ✓ | Back in scope — cloning candidate |
+| Dia / Parler | ✓ | prompt-conditioned | Scaffolded in harness; expressiveness candidates, cloning fidelity TBD |
 
-## Status
+## Status — eval ongoing
 
-Harness scaffolded (`interface.py`, `mlx_audio_tts.py`, `piper_tts.py`,
-`evaluate.py`, `test_lines.py` — 5 narrator lines spanning the story's
-emotional range). Not yet run — `uv sync` to pull `mlx-audio`, then:
+Harness scaffolded and extended beyond the original two providers
+(`interface.py`, `evaluate.py`, `test_lines.py` — 5 narrator lines spanning
+the story's emotional range; adapters: `mlx_audio_tts.py`, `piper_tts.py`,
+`dia_tts.py`, `parler_eval.py`, `xtts_eval.py`, `openvoice_eval.py`).
+First synthesis passes exist in `synth_out/`; a Piper voice model is
+downloaded in `voices/`.
+
+**Built-in-voice round: complete, all ruled out** — qualitative listen found
+no out-of-the-box voice that carries the character.
+
+**Cloning round: blocked on reference audio** — needs the artist's own
+recordings before XTTS/OpenVoice (and any prompt-conditioned candidates) can
+be evaluated for cloning fidelity, latency, and RTF.
 
 ```bash
 uv run python -m tts.evaluate
 ```
-
-Piper is commented out in `evaluate.py`'s `PROVIDERS` list until a voice
-model (`.onnx`) is downloaded locally.
-
-Results (latency, RTF, and a qualitative listen for affect/expressiveness)
-to be added once run.
