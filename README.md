@@ -4,7 +4,7 @@ An offline interactive art installation built inside a modified ham radio system
 
 The piece navigates one protagonist's lifelong struggle with depression. How the story ends depends on how the participant responds.
 
-**Status:** Active development — v0.3 in progress (v1.0-alpha: audio + STT complete, LLM in progress)
+**Status:** Active development — v0.3 in progress (v1.0-alpha: audio + STT + LLM complete, TTS eval ongoing)
 
 ---
 
@@ -38,6 +38,8 @@ local-stack/                      # v1 local stack — v1.0-alpha
 
 Implements the core mechanic: dial tuning, frequency discovery, static, and narrative branching across life stages.
 
+Milestones: architecture (2026-04-28), first playtest (2026-04-30), dial lock-on update (2026-06-28) — see the dated notes in `radio_v0/`.
+
 ### What's working in v0.2
 - Rotary dial simulation with frequency lock-on
 - Narrowing lock-on radii across Storypoints (harder to find as the story progresses)
@@ -50,9 +52,9 @@ Implements the core mechanic: dial tuning, frequency discovery, static, and narr
 
 **v0.3 — Open-source stack** ← current
 - Migrate from third-party APIs to fully local, air-gapped models
-- ✓ Local speech-to-text (mlx-whisper-small, ~305ms/clip on M-series)
+- ✓ Local speech-to-text (mlx-whisper-small, ~305ms/clip on M-series) (2026-07-03)
 - Voice affect recognition 
-- Locally-hosted LLM 
+- ✓ Locally-hosted LLM (llama3.2:3b, holds child persona under stress test) (2026-07-17)
 - Local text-to-speech 
 
 **v0.4 — Narrative draft + integration**
