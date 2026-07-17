@@ -1,0 +1,3 @@
+# TODO
+
+- **Trust engine**: no dynamic trust computation exists yet — `trust_level` is currently only ever a hardcoded/scripted value (see `llm/test_voice.py`, `llm/system_prompt.txt`). When wiring the real installation together, trust must be earned based on participant behavior (tone, patience, repeated pushing past deflection), not just elapsed turns — a pushy/hostile participant should not climb the trust curve at the same rate as a patient one. Surfaced during LLM persona stress-testing (2026-07-17): scripted trust values let the character over-disclose to a participant who was never actually being nice.

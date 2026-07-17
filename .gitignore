@@ -11,3 +11,7 @@ __pycache__/
 **/node_modules/
 recordings/
 test.wav
+# TTS eval artifacts — downloaded model weights and generated audio
+local-stack/tts/voices/
+local-stack/tts/synth_out/
+**/.venv-parler/

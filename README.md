@@ -59,6 +59,12 @@ Implements the core mechanic: dial tuning, frequency discovery, static, and narr
 - Write narrative draft across all Storypoints
 - Integrate into open-source stack
 - End-to-end experience playable in browser
+- Character continuity across Storypoints/life stages: the LLM invents concrete
+  details (a toy's name, a relative) to stay grounded (see `local-stack/llm/DECISION.md`).
+  Each life stage gets its own system prompt, but invented details need to carry
+  forward as fixed canon rather than being reinvented per stage — e.g. a small
+  "established facts" ledger captured after each session and prepended into the
+  next stage's prompt.
 
 **v1 — Hardware integration**
 - Potentiometer + microcontroller replacing mouse/keyboard dial input
