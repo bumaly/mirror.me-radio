@@ -4,7 +4,7 @@ An offline interactive art installation built inside a modified ham radio system
 
 The piece navigates one protagonist's lifelong struggle with depression. How the story ends depends on how the participant responds.
 
-**Status:** Active development — v0.3 in progress (v1.0-alpha: audio + STT + LLM complete, TTS eval ongoing)
+**Status:** Active development — v0.3 in progress 
 
 ---
 
@@ -47,7 +47,7 @@ local-stack/                      # v1 local stack — v1.0-alpha
 
 Implements the core mechanic: dial tuning, frequency discovery, static, and narrative branching across life stages.
 
-Milestones: architecture (2026-04-28), first playtest (2026-04-30), dial lock-on update (2026-06-28) — see the dated notes in `radio_v0/`.
+Milestones: architecture v0 (2026-04-28), first playtest (2026-04-30), dial lock-on update (2026-06-28) — see the dated notes in `radio_v0/`.
 
 ### What's working in v0.2
 - Rotary dial simulation with frequency lock-on, narrowing per Storypoint
@@ -59,9 +59,6 @@ Milestones: architecture (2026-04-28), first playtest (2026-04-30), dial lock-on
 
 ### Roadmap
 
-_Note (2026-07-23): what was v2 is now v4 — a new v2 (final-hardware
-replication + spec-fit) and v3 (capability upgrade) were inserted after v1._
-
 **v0.3 — Open-source stack** ← current
 MVP proof-of-concept: every model choice below (STT, LLM, TTS) is being
 selected and validated on the current dev machine — MacBook Air M5,
@@ -71,7 +68,7 @@ more capable production machine.
 - Migrate from third-party APIs to fully local, air-gapped models
 - v0.3.1 — ✓ Local speech-to-text (mlx-whisper-small, ~305ms/clip on M-series) (2026-07-03)
 - v0.3.2 — ✓ Locally-hosted LLM (llama3.2:3b, holds child persona under stress test) (2026-07-17)
-- v0.3.3 — Local text-to-speech
+- v0.3.3 — Local text-to-speech (ongoing)
 - v0.3.4 — Voice affect recognition
 
 **v0.4 — Narrative draft + integration**
