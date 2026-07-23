@@ -50,8 +50,8 @@ Implements the core mechanic: dial tuning, frequency discovery, static, and narr
 Milestones: architecture (2026-04-28), first playtest (2026-04-30), dial lock-on update (2026-06-28) — see the dated notes in `radio_v0/`.
 
 ### What's working in v0.2
-- Rotary dial simulation with frequency lock-on
-- Narrowing lock-on radii across Storypoints (harder to find as the story progresses)
+- Rotary dial simulation with frequency lock-on, narrowing per Storypoint
+  (harder to find as the story progresses)
 - Narrative sequence: infancy → 20s → 30s–40s → 60s → 80s → outro
 - Listen-only segments with timed transitions
 - Static feedback between frequencies
