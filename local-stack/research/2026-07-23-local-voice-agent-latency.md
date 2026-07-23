@@ -48,6 +48,21 @@ just that, ballparks, not benchmarked facts.
 - Nothing here has been run on the actual M5 Air yet — this is a planning
   budget from external sources, not measured results.
 
+**Reconciliation with `llm/DECISION.md` (added after cross-check):** this
+research's "7-8B model" recommendation was written green-field, from generic
+latency/quality sourcing, without checking what the project had already
+decided. `llm/DECISION.md` screened 8 candidates over 5 rounds specifically
+for **holding a fictional child-character persona** (strict vocabulary,
+format, and disclosure-pacing rules) — not generic chat quality — and every
+7B+ model tested (dolphin-mistral, nous-hermes2, mistral, gemma2:2b,
+phi3:mini) was disqualified, either on latency (15-75s/turn) or on
+character/format discipline (adult-register drift, metaphors, stage-direction
+leakage). **llama3.2:3b won** and is the final decision, consistently
+sub-3s/turn in isolation. For this project, treat "7-8B" below as generic
+background, not a recommendation to act on — the smaller model already in
+place satisfies both the latency budget and a persona-fidelity requirement
+this research didn't account for.
+
 ## The realistic target isn't a single unified model
 
 Fully self-hosted, end-to-end (native) speech-to-speech models aren't yet
