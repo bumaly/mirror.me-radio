@@ -59,7 +59,15 @@ Milestones: architecture (2026-04-28), first playtest (2026-04-30), dial lock-on
 
 ### Roadmap
 
+_Note (2026-07-23): what was v2 is now v3 — a new v2 (final-hardware
+replication + spec-fit) was inserted after v1._
+
 **v0.3 — Open-source stack** ← current
+MVP proof-of-concept: every model choice below (STT, LLM, TTS) is being
+selected and validated on the current dev machine — MacBook Air M5,
+16GB, not final installation hardware — to demonstrate the fully-local
+approach is viable even on modest hardware, not just on the eventual,
+more capable production machine.
 - Migrate from third-party APIs to fully local, air-gapped models
 - ✓ Local speech-to-text (mlx-whisper-small, ~305ms/clip on M-series) (2026-07-03)
 - Voice affect recognition 
@@ -82,7 +90,15 @@ Milestones: architecture (2026-04-28), first playtest (2026-04-30), dial lock-on
 - Audio interface for microphone and speaker routing
 - Full installation in vintage radio enclosure
 
-**v2 — Complete narrative**
+**v2 — Final-hardware replication + spec-fit**
+- Replicate the v1 hardware + local-stack pipeline on the final production
+  machine
+- Re-run timing/latency-sensitive evals (TTS, LLM) on the final hardware —
+  machine-specific rejections made on the current dev machine (e.g. Parler
+  stage-1 timing, `local-stack/tts/DECISION.md`) get revisited there
+- Tune model choices/configs to fit the final machine's actual specs
+
+**v3 — Complete narrative**
 - Replace narrative draft with final, complete narrative across all Storypoints
 
 ### Run locally
