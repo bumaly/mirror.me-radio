@@ -37,7 +37,7 @@ local-stack/                      # v1 local stack — v1.0-alpha
 │   └── DECISION.md               # Model selection rationale (2026-07-17, llama3.2:3b)
 └── tts/                          # TTS evaluation harness (eval ongoing)
     ├── interface.py              # Provider contract
-    ├── piper_tts.py, mlx_audio_tts.py, dia_tts.py, ...   # Candidate providers
+    ├── dia_tts.py, xtts_eval.py, openvoice_eval.py, ...  # Candidate providers
     ├── evaluate.py               # Evaluation runner
     └── DECISION.md               # Model selection rationale (in progress)
 ````

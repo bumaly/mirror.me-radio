@@ -1,10 +1,6 @@
 from tts.dia_tts import DiaTTS
-from tts.mlx_audio_tts import MLXAudioTTS
-from tts.piper_tts import PiperTTS
 from tts.test_lines import LINES
 
-# Piper needs a downloaded .onnx voice model — point this at one before running,
-# e.g. `en_US-lessac-medium.onnx` from https://github.com/rhasspy/piper/releases
 PROVIDERS = [
     DiaTTS(),
 ]
