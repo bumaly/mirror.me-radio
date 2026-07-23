@@ -38,7 +38,7 @@ just that, ballparks, not benchmarked facts.
 - Rough per-stage budget: **VAD/endpointing ~150-800ms**, **ASR
   ~100-400ms**, **LLM time-to-first-token ~150-400ms** (small 4-bit
   quantized model + prompt caching), **TTS time-to-first-audio ~90-300ms**
-  (Kokoro-82M streaming). Landing in the 1-2s target is realistic but
+  (Kokoro-82M streaming — see TTS reconciliation note below). Landing in the 1-2s target is realistic but
   requires deliberately choosing the fast/small option at every stage, not
   defaults.
 - **Recommended stack to prototype:** Silero VAD → whisper.cpp/MLX-Whisper
@@ -200,6 +200,8 @@ verified — treat as directional):
   even though it supports voice cloning — consistent with this project's
   independent finding that OpenVoice/XTTS cloning fidelity and latency don't
   come for free).
+  **See TTS reconciliation note below — Kokoro is not a candidate for this
+  project's actual TTS choice.**
 
 ## Recommended concrete stack to prototype
 
@@ -212,6 +214,31 @@ verified — treat as directional):
 - **Aggregator:** a hand-rolled sentence-boundary buffer (Pipecat's pattern —
   trivial to replicate: accumulate tokens, flush on `.!?`).
 - **TTS:** Kokoro-82M via `kokoro-mlx` or `mlx-audio`'s `generate_stream()`.
+
+**Reconciliation with `tts/DECISION.md` (added after cross-check):** this
+research's Kokoro recommendation was written green-field, from generic
+TTS-latency sourcing, without checking what the project had already decided.
+`tts/DECISION.md` screened TTS candidates specifically for **cloning the
+narrator's own voice** from a reference recording (`narrator_ref.wav`) —
+voice identity is a first-class pass/fail column there, not a nice-to-have.
+Kokoro (and Piper) were explicitly **rejected**: "✗ no character... built-in
+voices only, no cloning." Both were removed from the codebase the same day
+(commit `7e0be43`) — the `mlx_audio_tts.py`/`piper_tts.py` adapters and
+Kokoro's synth clips are gone. This isn't a wholesale rejection of "fast
+local TTS" as a category, only of Kokoro specifically for this project's
+cloning requirement.
+
+The real standing candidates per `tts/DECISION.md` are **OpenVoice V2**
+(0.31x RTF) and **XTTS-v2** (0.76x RTF) — both clone the narrator's voice
+from `narrator_ref.wav`, both still well under real-time, but neither is
+anywhere near Kokoro's ~90ms time-to-first-audio. If streaming/low-latency
+TTS synthesis matters for the live-conversation use case (per `README.md`,
+this is a real-time STT→LLM→TTS pipeline per Storypoint interaction, not
+pre-recorded narration), that gap is a real tradeoff against voice fidelity
+worth flagging, not something to paper over. For this project, treat the
+Kokoro figures above as generic TTS-latency background, not a recommendation
+to act on — swap the "TTS:" line above for OpenVoice V2 or XTTS-v2 depending
+on whether latency or cloning accuracy is prioritized.
 
 Stacked with genuine overlap between stages, landing in the 1-2s
 response-gap range is realistic but not automatic — it requires deliberately
