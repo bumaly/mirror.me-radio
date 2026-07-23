@@ -12,7 +12,6 @@ import time
 from pathlib import Path
 
 import torch
-from openvoice import se_extractor
 from openvoice.api import ToneColorConverter
 
 from tts.interface import SynthResult
@@ -25,7 +24,9 @@ device = "mps" if torch.backends.mps.is_available() else "cpu"
 converter = ToneColorConverter(f"{CKPT_DIR}/config.json", device=device)
 converter.load_ckpt(f"{CKPT_DIR}/checkpoint.pth")
 
-target_se, _ = se_extractor.get_se(REF_AUDIO, converter, vad=False)
+# ponytail: se_extractor.get_se hardcodes CUDA whisper for clip splitting;
+# extract_se on the whole 69s clip works fine and needs no whisper at all.
+target_se = converter.extract_se(REF_AUDIO)
 
 from melo.api import TTS as MeloTTS
 
@@ -71,7 +72,7 @@ def main():
     total_latency = 0.0
     total_audio = 0.0
     for i, line in enumerate(LINES):
-        out_path = f"tts/synth_out/openvoice-v2_{i}.wav"
+        out_path = f"tts/synth_out/openvoice_v2_{i}.wav"
         r = synthesize(line, out_path)
         total_latency += r.latency_ms
         total_audio += r.audio_duration_s
