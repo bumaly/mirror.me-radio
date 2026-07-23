@@ -117,3 +117,22 @@ Listen: `synth_out/split_parler_*.wav` / `split_parler_dia_*.wav`
 (converted) vs `split_src_*.wav` (raw stage 1) — the pair answers whether
 expressiveness survives conversion and whether the timbre reads as the
 narrator. Ear-check pending.
+
+## Ear-check verdicts — 2026-07-23
+
+- **OpenVoice V2 cloning fidelity: passed.** The converted clips read as the
+  narrator voice. Expressiveness verdict deferred — it may be capped by the
+  reference recording, not the model (cloning models copy timbre and only a
+  thin layer of prosody; a flat reference caps output range). Next experiment:
+  re-record `narrator_ref.wav` with deliberately exaggerated, varied delivery,
+  then re-run the OpenVoice and XTTS cloning evals against it.
+- **Split pipeline (Parler stage 1): rejected on audio quality.** The
+  converted output is unusable regardless of timing. Dia variant was already
+  pathological (rambling/padding on short lines).
+
+Open timing question: the 2026-07-17 Parler run (5.7–69s/line, wildly
+inconsistent for similar-length audio) was taken under memory pressure
+(3.2GB swap, Chrome/Bitdefender/two Claude sessions resident) and shows the
+classic pressure signature. A re-run on a quiet machine will settle whether
+Parler is genuinely that slow here or was starved — relevant only for batch
+generation cost, since even a large speedup leaves stage 1 far from real time.
