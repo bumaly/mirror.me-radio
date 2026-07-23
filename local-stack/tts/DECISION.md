@@ -2,6 +2,14 @@
 
 **Goal: find a local, air-gapped TTS model for a fixed narrator voice.**
 
+**Dev machine (current, MVP-stage evals):** MacBook Air, Apple M5, 10-core
+(4P+6E), 16GB unified memory. Not the final installation hardware — a more
+capable machine is planned for production. Any timing/RTF numbers in this
+doc through the MVP stage were measured on this machine unless noted
+otherwise; re-run timing-sensitive evals once the final machine is known,
+since a rejection on *latency* here may not hold there (a rejection on
+*audio quality* is hardware-independent and stands regardless).
+
 **Direction change (2026-07-17):** the original plan assumed an out-of-the-box
 voice would do (one consistent narrator voice, no cloning). After listening to
 the built-in voices generated so far, all were ruled out — none carry the
@@ -170,3 +178,13 @@ it runs on this hardware, rather than the 07-17 numbers being an artifact of
 unrelated resident load — the slowness looks intrinsic to the model on this
 machine, not a starvation effect. Does not change the standing rejection on
 audio quality; stage 1 remains far from real time either way.
+
+**Final verdict for this MVP: Parler split pipeline is out.** Audio quality
+was already rejected (Ear-check, 2026-07-23); this run additionally confirms
+the latency is genuinely bad on the current dev machine (M5, 16GB — see top
+of doc), not a measurement artifact. Timing is the weaker of the two
+rejections and hardware-dependent — worth a quick re-check once the final,
+more capable production machine is in hand, in case improved throughput
+changes the batch-generation cost math. The quality rejection is
+hardware-independent and would need a different fix (e.g. a better stage-2
+conversion or dropping the split-pipeline approach), not just faster silicon.
