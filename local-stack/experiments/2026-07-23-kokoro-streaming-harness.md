@@ -1,8 +1,8 @@
 # Experiment: Kokoro as a throwaway streaming-plumbing harness
 
 **Status:** proposed, not yet run.
-**Read first:** `local-stack/research/2026-07-23-precompute-vs-live-architecture.md`
-(full architecture context) and `local-stack/research/2026-07-23-local-voice-agent-latency.md`
+**Read first:** `local-stack/research/04-precompute-vs-live-architecture.md`
+(full architecture context) and `local-stack/research/02-local-voice-agent-latency.md`
 (the sentence-boundary-buffer pattern this experiment validates).
 
 ## Why this experiment exists
@@ -26,7 +26,7 @@ it only in a scratch/throwaway venv for this experiment, then discard it.
 
 1. Scratch venv with `kokoro-mlx` or `mlx-audio`'s Kokoro-82M support
    installed (whichever the research doc's citations point to — see
-   `local-stack/research/2026-07-23-local-voice-agent-latency.md` lines
+   `local-stack/research/02-local-voice-agent-latency.md` lines
    ~189-214).
 2. Modify a copy of `llm/test_voice.py`'s `ask()` function (don't edit the
    original — this is throwaway) to call Ollama with `"stream": true`

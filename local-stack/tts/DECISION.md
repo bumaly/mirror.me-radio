@@ -248,7 +248,7 @@ against it before making a final call.
 
 ## 2026-07-23: Kokoro's role, resolved by the precompute/live architecture split
 
-See `local-stack/research/2026-07-23-precompute-vs-live-architecture.md` for
+See `local-stack/research/04-precompute-vs-live-architecture.md` for
 the full writeup. Short version: Kokoro remains rejected as a shipping
 dialogue voice — it can't clone, so alternating it with XTTS-v2/OpenVoice V2
 mid-conversation would mean the character's voice changes between lines,
@@ -256,5 +256,5 @@ which conflicts with this project's persona-fidelity bar. Its only viable
 uses going forward are (a) a throwaway harness for validating streaming
 pipeline plumbing, never shipped, and (b) not at all for actual dialogue.
 Any reference to Kokoro elsewhere (e.g. the "recommended concrete stack" in
-`local-stack/research/2026-07-23-local-voice-agent-latency.md`) should be
+`local-stack/research/02-local-voice-agent-latency.md`) should be
 read in that light rather than as a live recommendation.

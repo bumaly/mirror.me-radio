@@ -1,7 +1,7 @@
 # Precompute vs. live: rethinking the voice pipeline architecture
 
 Continuation of the ChipChat-inspired streaming brainstorm from
-`2026-07-23-local-voice-agent-latency.md`. That doc established the
+`02-local-voice-agent-latency.md`. That doc established the
 sentence-boundary-buffer pattern as the reproducible part of ChipChat.
 This doc questions whether the full streaming pipeline is the right target
 at all, given what this project's narrative and current code actually look

@@ -1,7 +1,7 @@
 # Experiment: does XTTS-v2 / OpenVoice V2 support any form of streaming?
 
 **Status:** proposed, not yet run.
-**Read first:** `local-stack/research/2026-07-23-precompute-vs-live-architecture.md`
+**Read first:** `local-stack/research/04-precompute-vs-live-architecture.md`
 (full architecture context), `local-stack/tts/DECISION.md` (why these two are
 the standing cloned-voice candidates), `local-stack/tts/xtts_eval.py` and
 `local-stack/tts/openvoice_eval.py` (current one-shot implementations).
@@ -61,7 +61,7 @@ extra implementation complexity worth the additional latency shaved off?
 
 Whichever engine/approach wins becomes the live TTS stage in the interior
 (post-first-response) portion of the precompute/live hybrid architecture
-described in `2026-07-23-precompute-vs-live-architecture.md`. The
+described in `04-precompute-vs-live-architecture.md`. The
 precomputed opening/ending lines are unaffected either way — they're
 rendered offline with no latency constraint regardless of what this
 experiment finds.

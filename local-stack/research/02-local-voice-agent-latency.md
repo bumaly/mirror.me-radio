@@ -4,7 +4,7 @@ Point-in-time background research, not a living decision log (contrast with
 `tts/DECISION.md`, `stt/DECISION.md`, `llm/DECISION.md`). This is the research
 that actually applies to mirror.me-radio, once the investigation narrowed from
 "replicate Google Meet's translation architecture" (see
-`2026-07-23-google-speech-translation-architecture.md`) to the project's real
+`01-google-speech-translation-architecture.md`) to the project's real
 requirement: a **fully local, air-gapped, no-cloud-APIs, no-voice-cloning-
 needed** conversational pipeline that minimizes the gap between the person
 finishing speaking and the installation's spoken response starting — target
@@ -34,7 +34,7 @@ just that, ballparks, not benchmarked facts.
 - **ChipChat** is the one real local proof-of-concept found: ~920ms
   end-to-end, fully on-device on a Mac Studio M2 Ultra 192GB. Its 192GB was
   for a large 45B-param model for *quality*, not required for the latency —
-  see `2026-07-23-voice-agent-hardware-options.md`.
+  see `03-voice-agent-hardware-options.md`.
 - Rough per-stage budget: **VAD/endpointing ~150-800ms**, **ASR
   ~100-400ms**, **LLM time-to-first-token ~150-400ms** (small 4-bit
   quantized model + prompt caching), **TTS time-to-first-audio ~90-300ms**
@@ -121,7 +121,7 @@ there to run a large model for **conversation quality** (a Mixtral-8x7B-based
 mixture-of-experts model, 8 experts, 45B total parameters) — not because
 192GB is required to hit this latency. A fixed narrator character giving
 short, scripted-adjacent responses doesn't need a model anywhere near that
-size. See `2026-07-23-voice-agent-hardware-options.md` for the actual memory
+size. See `03-voice-agent-hardware-options.md` for the actual memory
 requirement.
 
 Without ChipChat's streaming/caching optimizations, a naive PyTorch cascaded

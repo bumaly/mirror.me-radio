@@ -6,7 +6,7 @@ experiencing Google Meet's live speech translation feature and asking whether
 its architecture could inform this project. Conclusion up front: **this
 specific architecture (translation with voice cloning) is not what
 mirror.me-radio needs** — see the companion file
-`2026-07-23-local-voice-agent-latency.md` for the pipeline that actually
+`02-local-voice-agent-latency.md` for the pipeline that actually
 applies here. This file exists so the research isn't lost.
 
 ## Key takeaways
@@ -28,7 +28,7 @@ applies here. This file exists so the research isn't lost.
 - **Bottom line: this whole architecture (translation + voice preservation)
   is not what mirror.me-radio needs.** The one transferable idea — chunked
   streaming + a learned commit policy — reappears in the actually-relevant
-  research, see `2026-07-23-local-voice-agent-latency.md`.
+  research, see `02-local-voice-agent-latency.md`.
 
 ## What Google Meet's live translation actually is
 

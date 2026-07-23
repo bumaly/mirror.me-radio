@@ -2,7 +2,7 @@
 
 Point-in-time background research, not a living decision log (contrast with
 `tts/DECISION.md`, `stt/DECISION.md`, `llm/DECISION.md`). Follows directly
-from `2026-07-23-local-voice-agent-latency.md` — that file's ChipChat
+from `02-local-voice-agent-latency.md` — that file's ChipChat
 reference (Mac Studio, M2 Ultra, 192GB unified memory) prompted the question
 of what hardware mirror.me-radio would actually need to run a similar local
 ASR→LLM→TTS pipeline.
@@ -42,7 +42,7 @@ a much smaller memory footprint.
 - **16GB (current MacBook Air M5) is workable for prototyping** — explicitly
   the floor for running a 7-8B parameter model at 4-bit quantization, the
   realistic model size for this use case (per
-  `2026-07-23-local-voice-agent-latency.md`'s recommended stack).
+  `02-local-voice-agent-latency.md`'s recommended stack).
 - **24-32GB unified memory is the comfortable target** — headroom for the
   LLM, streaming Whisper, and TTS to all be resident simultaneously without
   the kind of memory pressure that drove the Parler timing regressions
