@@ -17,7 +17,8 @@ character. The voice will instead be cloned from the artist's own recordings,
 which puts cloning-capable models (XTTS, OpenVoice, etc.) back in scope and
 drops cloning-free models (Kokoro built-ins, Piper) unless used only as a
 latency baseline. Next step: record reference audio, then re-run the eval on
-the cloning candidates against it.
+the cloning candidates against it. (Done — see "OpenVoice (V2) — cloning
+eval, 2026-07-17" and "XTTS-v2 cloning eval, 2026-07-23" below.)
 
 **Context:** `mirror.me-affirmations` (an earlier prototype) used ElevenLabs
 (cloning + synthesis) and OpenAI (transcription + text rewrite) — entirely
@@ -31,9 +32,9 @@ port either.
 |-------|-------|---------|-------|
 | mlx-audio (Kokoro-82M) | ✓ MLX-native | ✗ | Built-in voices ruled out — none carry the character; keep only as latency baseline |
 | Piper | ✓ ONNX/CPU | ✗ | Built-in voices ruled out (same reason); fast latency baseline at best |
-| Coqui XTTS-v2 | ✓ torch/MPS | ✓ | Back in scope — cloning from artist's reference recordings |
-| OpenVoice | ✓ torch/MPS | ✓ | Back in scope — cloning candidate |
-| Dia / Parler | ✓ | prompt-conditioned | Scaffolded in harness; expressiveness candidates, cloning fidelity TBD |
+| Coqui XTTS-v2 | ✓ torch/MPS | ✓ | Passed ear-check, RTF 0.76x — leading candidate, most accurate to artist's actual voice (see "Ear-check verdicts", 2026-07-23) |
+| OpenVoice | ✓ torch/MPS | ✓ | Passed ear-check, RTF 0.31x — leading candidate, faster of the two (see "Ear-check verdicts", 2026-07-23) |
+| Dia / Parler | ✓ | prompt-conditioned | Rejected — split pipeline (expressive-model + tone-color conversion) unusable on audio quality; Parler also confirmed genuinely slow on this hardware (see "Ear-check verdicts" and Parler timing re-run, both 2026-07-23) |
 
 ## Status — eval ongoing
 
@@ -47,9 +48,11 @@ downloaded in `voices/`.
 **Built-in-voice round: complete, all ruled out** — qualitative listen found
 no out-of-the-box voice that carries the character.
 
-**Cloning round: blocked on reference audio** — needs the artist's own
-recordings before XTTS/OpenVoice (and any prompt-conditioned candidates) can
-be evaluated for cloning fidelity, latency, and RTF.
+**Cloning round: complete against the original (flat) reference recording**
+— both XTTS-v2 and OpenVoice V2 passed the voice-identity ear-check;
+Parler/Dia split pipeline rejected. See "Summary" at the bottom of this doc.
+Next round is blocked on a re-recorded, more expressive `narrator_ref.wav`
+(see "Ear-check verdicts", 2026-07-23).
 
 ```bash
 uv run python -m tts.evaluate
@@ -93,7 +96,7 @@ Setup notes:
   states "Free Commercial Use" since April 2024) and MeloTTS — no restriction
   on exhibited artwork.
 
-Cloning fidelity: user ear-check pending.
+Cloning fidelity: passed (see "Ear-check verdicts", 2026-07-23).
 
 ## Split pipeline (expressive TTS → tone-color conversion) — 2026-07-17
 
@@ -124,7 +127,8 @@ static assets — generation cost paid once, offline.
 Listen: `synth_out/split_parler_*.wav` / `split_parler_dia_*.wav`
 (converted) vs `split_src_*.wav` (raw stage 1) — the pair answers whether
 expressiveness survives conversion and whether the timbre reads as the
-narrator. Ear-check pending.
+narrator. Ear-check: rejected on audio quality — converted output unusable
+regardless of timing (see "Ear-check verdicts", 2026-07-23).
 
 ## XTTS-v2 cloning eval, 2026-07-23
 
@@ -216,3 +220,28 @@ more capable production machine is in hand, in case improved throughput
 changes the batch-generation cost math. The quality rejection is
 hardware-independent and would need a different fix (e.g. a better stage-2
 conversion or dropping the split-pipeline approach), not just faster silicon.
+
+## Summary — testing against the original reference, 2026-07-23
+
+Every candidate below was tested against the same, original `narrator_ref.wav`
+(flat, unexaggerated delivery). This round is closed; the next round waits on
+a re-recorded reference with more varied delivery, since both surviving
+candidates' expressiveness appears capped by that recording rather than by
+the models themselves.
+
+| Model | Voice identity | Expressiveness | Latency (RTF) | Verdict |
+|-------|----------------|-----------------|----------------|---------|
+| mlx-audio (Kokoro-82M) | ✗ no character | — | fast (baseline) | Rejected — built-in voices only, no cloning |
+| Piper | ✗ no character | — | fast (baseline) | Rejected — built-in voices only, no cloning |
+| **OpenVoice V2** | ✓ passed | Capped by reference | 0.31x — fastest | **Leading candidate** — two-stage (MeloTTS + tone-color conversion) |
+| **XTTS-v2** | ✓ passed, most accurate to artist's actual voice | Capped by reference | 0.76x — still well under real time | **Leading candidate** — single-stage, direct cloning |
+| Parler (split pipeline) | ✗ rejected | Unusable post-conversion | 8.5–11x — far from real time, confirmed genuinely slow on this hardware | Rejected on quality and timing |
+| Dia (split pipeline) | ✗ rejected | Pathological (rambling/padding on short lines) | 28–144s/line | Rejected on quality |
+
+**Standing candidates: OpenVoice V2 and XTTS-v2**, both cloning directly (or
+via conversion) from a single reference clip, both well under real time on
+current dev hardware. Neither is picked as final yet — expressiveness for
+both is suspected to be limited by the flat reference recording, not the
+model. **Next step:** re-record `narrator_ref.wav` with deliberately
+exaggerated, varied delivery, then re-run the OpenVoice and XTTS evals
+against it before making a final call.
