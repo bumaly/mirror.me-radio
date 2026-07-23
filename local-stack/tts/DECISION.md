@@ -126,14 +126,42 @@ Listen: `synth_out/split_parler_*.wav` / `split_parler_dia_*.wav`
 expressiveness survives conversion and whether the timbre reads as the
 narrator. Ear-check pending.
 
+## XTTS-v2 cloning eval, 2026-07-23
+
+Run: `.venv-xtts/bin/python -m tts.xtts_eval` (own venv, Python 3.11 —
+coqui-tts pins deps incompatible with mlx-audio). Single-stage: XTTS clones
+directly from `tts/voices/narrator_ref.wav` via `speaker_wav`, no separate
+tone-color-conversion step (unlike the OpenVoice two-stage pipeline).
+
+| Line | Latency | Audio |
+|------|---------|-------|
+| Hi... is someone there? | 2177ms | 2.5s |
+| My mum says it's nothing... | 3072ms | 4.3s |
+| They're loud and mean... | 2882ms | 3.9s |
+| I don't know why he doesn't... | 2031ms | 2.6s |
+| You don't have to be scared... | 2938ms | 3.7s |
+| Today we built a blanket fort... | 3080ms | 4.3s |
+| The bus picks me up at eight... | 2112ms | 2.8s |
+
+**Avg latency 2613ms/line, RTF 0.76x** (under real time). Listen:
+`tts/synth_out/xtts-v2_{0..6}.wav`.
+
 ## Ear-check verdicts — 2026-07-23
 
 - **OpenVoice V2 cloning fidelity: passed.** The converted clips read as the
   narrator voice. Expressiveness verdict deferred — it may be capped by the
   reference recording, not the model (cloning models copy timbre and only a
-  thin layer of prosody; a flat reference caps output range). Next experiment:
-  re-record `narrator_ref.wav` with deliberately exaggerated, varied delivery,
-  then re-run the OpenVoice and XTTS cloning evals against it.
+  thin layer of prosody; a flat reference caps output range).
+- **XTTS-v2 cloning fidelity: passed, more accurate to the artist's actual
+  voice than OpenVoice.** Same underlying limitation as OpenVoice, though:
+  expressiveness reads as capped by the reference recording rather than the
+  model — cloning models copy timbre and only a thin layer of prosody, so a
+  flat reference caps output range regardless of which cloning model is used.
+- **Both cloning candidates need the same next experiment:** re-record
+  `narrator_ref.wav` with deliberately exaggerated, varied delivery, then
+  re-run both the OpenVoice and XTTS cloning evals against the new
+  reference — neither model's expressiveness can be fairly judged until
+  the input reference stops being the bottleneck.
 - **Split pipeline (Parler stage 1): rejected on audio quality.** The
   converted output is unusable regardless of timing. Dia variant was already
   pathological (rambling/padding on short lines).
