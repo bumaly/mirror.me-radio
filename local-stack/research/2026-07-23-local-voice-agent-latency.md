@@ -38,9 +38,9 @@ just that, ballparks, not benchmarked facts.
 - Rough per-stage budget: **VAD/endpointing ~150-800ms**, **ASR
   ~100-400ms**, **LLM time-to-first-token ~150-400ms** (small 4-bit
   quantized model + prompt caching), **TTS time-to-first-audio ~90-300ms**
-  (Kokoro-82M streaming — see TTS reconciliation note below). Landing in the 1-2s target is realistic but
-  requires deliberately choosing the fast/small option at every stage, not
-  defaults.
+  (Kokoro-82M streaming — see TTS reconciliation note below). Landing in
+  the 1-2s target is realistic but requires deliberately choosing the
+  fast/small option at every stage, not defaults.
 - **Recommended stack to prototype:** Silero VAD → whisper.cpp/MLX-Whisper
   (small/turbo, streaming) → 7-8B 4-bit LLM via `mlx-lm` (prompt caching,
   capped KV-cache) → hand-rolled sentence-boundary buffer → Kokoro-82M via
