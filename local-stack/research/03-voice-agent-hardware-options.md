@@ -10,69 +10,41 @@ ASR→LLM→TTS pipeline.
 ## Key takeaways
 
 - **ChipChat's 192GB was for model quality (a 45B-param MoE), not latency.**
-  mirror.me-radio's fixed narrator character doesn't need a model that big.
-- **16GB (current M5 Air) already clears the floor** for a 7-8B 4-bit model.
-  **24-32GB is the comfortable target** — headroom so LLM + Whisper + TTS
-  can all be resident without the memory pressure that caused the Parler
-  timing regressions in `tts/DECISION.md`.
-- **Concrete recommendation: Mac mini (M4 Pro, 24GB).** Cheapest option that
-  clears the bar, small/quiet, good fit for an installation. A Mac Studio or
-  the Ultra tier is not needed.
-- Apple's rumored M5 Max/Ultra Mac Studio refresh (~Oct 2026, pricing/RAM
-  still uncertain) is **not relevant to this project** — noted only because
-  it came up in the same conversation.
-- **No true out-of-the-box appliance exists** for this ("local ASR→LLM→TTS
-  agent, custom voice, sub-2s turn-taking"). Closest options (Home Assistant
-  Voice PE, Jetson dev kits, Strix Halo mini PCs, Pipecat/LiveKit) all still
-  require assembling the pipeline yourself. Given this project is already
-  in the Apple/MLX ecosystem, a Mac mini with more memory than the M5 Air is
-  the path of least resistance.
-
-## Correcting the 192GB takeaway
-
-ChipChat's 192GB wasn't a **latency** requirement — it was there so the
-project could run a large model (a Mixtral-8x7B-based mixture-of-experts
-model, 8 experts, 45B total parameters) for better general conversation
-quality. mirror.me-radio doesn't need that: a fixed narrator character giving
-short, scripted-adjacent responses is well served by a much smaller model, and
-a much smaller memory footprint.
-
-## What machine this project actually needs
-
-- **16GB (current MacBook Air M5) is workable for prototyping** — explicitly
-  the floor for running a 7-8B parameter model at 4-bit quantization, the
-  realistic model size for this use case (per
+  - The 192GB ran a large Mixtral-8x7B-based mixture-of-experts model (8
+    experts, 45B total params) for better general conversation quality.
+  - mirror.me-radio's fixed narrator character giving short,
+    scripted-adjacent responses doesn't need a model that big, or that
+    memory footprint.
+- **16GB (current M5 Air) already clears the floor** for a 7-8B 4-bit model
+  — the realistic model size for this use case (per
   `02-local-voice-agent-latency.md`'s recommended stack).
-- **24-32GB unified memory is the comfortable target** — headroom for the
-  LLM, streaming Whisper, and TTS to all be resident simultaneously without
-  the kind of memory pressure that drove the Parler timing regressions
-  documented in `tts/DECISION.md` ("Parler stage-1 timing re-run, quiet
-  machine"). Also leaves room to try a larger/better-quality model than 7-8B
-  if that class feels too flat for a narrator voice.
-- **Concrete cheapest option that clears the bar: Mac mini (M4 Pro, 24GB).**
-  Small, close-to-silent, a good physical fit for hardware that needs to
-  disappear into an installation.
-- **A Mac Studio (or the Ultra tier at all) is not needed.** That tier is
-  built for the 45B-parameter-class models ChipChat used, not this project's
-  scope.
-
-## Apple's upcoming Mac Studio refresh (context only, not a recommendation)
-
-Rumored M5 Max/Ultra Mac Studio refresh, not yet released as of this
-research date:
-- Timeline: reportedly delayed from an earlier-2026 target to around October
-  2026, due to memory-chip supply issues.
-  Source: [MacRumors](https://www.macrumors.com/2026/06/25/m5-ultra-mac-studio-2026/)
-- Base memory reportedly rising: M5 Max starting at 36GB, M5 Ultra starting
-  at 96GB. Apple tested support for up to 768GB but supply constraints may
-  prevent that configuration from actually shipping.
-- Pricing uncertain and trending upward — when Apple last raised Mac Studio
-  prices, the 96GB configuration went from $3,999 to $5,299; speculation
-  that an 8x-RAM top config could exceed $10,000.
-  Source: [Macworld](https://www.macworld.com/article/2973459/2026-mac-studio-m5-release-date-specs-price-rumors.html)
-- None of this is relevant to mirror.me-radio's actual requirement — recorded
-  here only because it came up in the same research conversation and could
-  otherwise be mistakenly read as "what we need."
+- **24-32GB is the comfortable target.**
+  - Headroom so LLM + streaming Whisper + TTS can all be resident
+    simultaneously, without the kind of memory pressure that drove the
+    Parler timing regressions documented in `tts/DECISION.md` ("Parler
+    stage-1 timing re-run, quiet machine").
+  - Also leaves room to try a larger/better-quality model than 7-8B if that
+    class feels too flat for a narrator voice.
+- **Concrete recommendation: Mac mini (M4 Pro, 24GB).**
+  - Cheapest option that clears the bar.
+  - Small, close-to-silent — good physical fit for hardware that needs to
+    disappear into an installation.
+  - A Mac Studio or the Ultra tier is not needed — that tier is built for
+    the 45B-parameter-class models ChipChat used, not this project's scope.
+- Apple's rumored M5 Max/Ultra Mac Studio refresh is **not relevant to this
+  project** — noted only because it came up in the same conversation.
+  - Reportedly delayed to around October 2026, due to memory-chip supply
+    issues.[^1]
+  - Base memory reportedly rising: M5 Max starting at 36GB, M5 Ultra
+    starting at 96GB. Apple tested support for up to 768GB but supply
+    constraints may prevent that configuration from actually shipping.
+  - Pricing uncertain, trending upward — when Apple last raised Mac Studio
+    prices, the 96GB configuration went from $3,999 to $5,299; speculation
+    that an 8x-RAM top config could exceed $10,000.[^2]
+- **No true out-of-the-box appliance exists** for "local ASR→LLM→TTS agent,
+  custom voice, sub-2s turn-taking." Closest options (Home Assistant Voice
+  PE, Jetson dev kits, Strix Halo mini PCs, Pipecat/LiveKit) all still
+  require assembling the pipeline yourself.
 
 ## Is there anything out-of-the-box?
 
@@ -101,9 +73,16 @@ What exists, and why each falls short of "just buy this":
   handling are provided), but you still plug in your own local ASR/LLM/TTS
   models and write the glue code.
 
-**Conclusion:** given this project is already deep in the Apple/MLX
-ecosystem (existing `local-stack/tts/` scripts, `.venv-*` per-model
-environments, MLX-native tooling), the path of least resistance is a Mac
-mini with more memory than the current M5 Air — same tools, same code, just
-headroom — rather than switching platforms or waiting for an out-of-the-box
-appliance that doesn't exist yet.
+## The Mac mini is the path of least resistance, not a compromise
+
+Given this project is already deep in the Apple/MLX ecosystem (existing
+`local-stack/tts/` scripts, `.venv-*` per-model environments, MLX-native
+tooling), the path of least resistance is a Mac mini with more memory than
+the current M5 Air — same tools, same code, just headroom — rather than
+switching platforms or waiting for an out-of-the-box appliance that doesn't
+exist yet.
+
+## Sources
+
+[^1]: MacRumors, M5 Ultra Mac Studio 2026 delay — https://www.macrumors.com/2026/06/25/m5-ultra-mac-studio-2026/
+[^2]: Macworld, 2026 Mac Studio M5 pricing rumors — https://www.macworld.com/article/2973459/2026-mac-studio-m5-release-date-specs-price-rumors.html
